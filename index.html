@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jugos de la Veci - POS Cloud</title>
+    <title>Jugos de la Veci - POS Cloud & Auth</title>
     
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
@@ -42,11 +42,12 @@
         .categoria-titulo { font-size: 1rem; color: var(--text-light); margin: 20px 0 15px 0; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; }
         .grid-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; margin-bottom: 30px;}
 
-        .btn-producto { background: var(--white); border: 1px solid var(--border-color); border-radius: 20px; padding: 25px 15px; text-align: center; cursor: pointer; transition: all 0.2s ease; box-shadow: var(--soft-shadow); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; height: 110px; }
+        .btn-producto { background: var(--white); border: 1px solid var(--border-color); border-radius: 20px; padding: 25px 15px; text-align: center; cursor: pointer; transition: all 0.2s ease; box-shadow: var(--soft-shadow); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; height: 110px; position: relative;}
         .btn-producto:hover { transform: translateY(-4px); border-color: var(--text-dark); box-shadow: var(--hover-shadow); }
         .btn-producto:active { transform: scale(0.96); }
         .prod-precio { font-size: 1.5rem; font-weight: 700; color: var(--text-dark); }
         .prod-nombre { font-size: 0.9rem; color: var(--text-light); font-weight: 500; }
+        .badge-retorno { position: absolute; top: 10px; right: 10px; font-size: 0.6rem; background: #FFF0F0; color: var(--danger); padding: 3px 6px; border-radius: 6px; font-weight: 700; }
 
         .ticket-panel { width: 400px; background: var(--white); border-left: 1px solid var(--border-color); display: flex; flex-direction: column; box-shadow: -10px 0 30px rgba(0,0,0,0.02); z-index: 10; }
         .ticket-header { padding: 35px 30px 25px; border-bottom: 1px solid var(--border-color); text-align: center; }
@@ -92,14 +93,17 @@
         .text-success { color: var(--success); border-color: var(--success); }
         .text-success:hover { background: #E8F8F0; }
 
-        .login-screen { height: 100vh; display: flex; flex-direction: column; align-items: center; background: var(--bg-crema); overflow-y: auto; padding: 60px 20px; position: relative;}
+        .login-screen { height: 100vh; display: flex; flex-direction: column; align-items: center; background: var(--bg-crema); overflow-y: auto; position: relative;}
         
-        .admin-corner { position: absolute; top: 30px; right: 30px; display: flex; flex-direction: column; gap: 15px; z-index: 50; }
+        /* NUEVA BARRA DE NAVEGACIÓN SUPERIOR */
+        .top-navbar { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 30px 40px 10px 40px; }
+        .admin-menu-row { display: flex; flex-direction: row; gap: 12px; flex-wrap: wrap; justify-content: flex-end; }
+        
         .btn-esquina { background: var(--white); border: 1px solid var(--border-color); padding: 12px 20px; border-radius: 16px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.2s; color: var(--text-dark); box-shadow: var(--soft-shadow); display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-esquina:hover { border-color: var(--text-dark); transform: translateY(-2px); }
         .btn-esquina:active { transform: scale(0.97); }
 
-        .vendedoras-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; margin-top: 20px; width: 100%; max-width: 1100px; justify-content: center; }
+        .vendedoras-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; margin-top: 20px; width: 100%; max-width: 1100px; justify-content: center; padding: 0 20px 60px 20px; }
         .card-vendedora { background: var(--white); border: 1px solid var(--border-color); padding: 40px; border-radius: 35px; text-align: center; width: 100%; box-shadow: var(--soft-shadow); position: relative; }
         .card-vendedora h2 { font-size: 2.2rem; margin-bottom: 25px; color: var(--text-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
         
@@ -114,6 +118,9 @@
         .btn-secundario-dash:hover { border-color: var(--text-dark); }
         .btn-alerta { border-color: var(--danger); color: var(--danger); }
 
+        .input-elegante { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid var(--border-color); fontSize: 1rem; marginBottom: 10px; }
+        .checkbox-label { display: flex; align-items: center; gap: 10px; font-size: 1rem; color: var(--text-dark); cursor: pointer; margin-bottom: 10px;}
+
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
@@ -121,11 +128,15 @@
             .pos-layout { flex-direction: column; } 
             .ticket-panel { width: 100%; height: 48vh; border-left: none; border-top: 1px solid var(--border-color); } 
             .catalogo-panel { height: 52vh; padding: 20px;} 
-            .login-screen { padding: 20px 15px; padding-top: 100px; }
+            .login-screen { padding: 0; }
             .login-screen h1 { font-size: 2.2rem; }
-            .admin-corner { position: absolute; top: 15px; right: 15px; left: 15px; flex-direction: row; justify-content: space-between; gap: 10px; }
-            .btn-esquina { flex: 1; padding: 12px 10px; font-size: 0.85rem; border-radius: 12px;}
-            .vendedoras-container { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+            
+            /* Ajustes Barra Superior para Celular */
+            .top-navbar { flex-direction: column; gap: 15px; padding: 20px; align-items: center; }
+            .admin-menu-row { justify-content: center; }
+            
+            .btn-esquina { padding: 10px 15px; font-size: 0.85rem; border-radius: 12px;}
+            .vendedoras-container { grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 0 15px 40px 15px;}
             .card-vendedora { padding: 15px 12px; border-radius: 20px; }
             .card-vendedora h2 { font-size: 1.3rem; margin-bottom: 15px; }
             .stats-box { padding: 10px; flex-direction: column; align-items: center; text-align: center; gap: 5px; border-radius: 12px;}
@@ -152,49 +163,73 @@
             appId: "1:24775167130:web:8f261f0cd8b9674c022323"
         };
 
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
         // 2. APLICACIÓN REACT
         const { useState, useEffect } = React;
 
+        // --- DATOS POR DEFECTO PARA LA PRIMERA VEZ ---
+        const defaultSabores = ['Mora', 'Tomate', 'Guanábana', 'Naranja', 'Alfalfa', 'Limonada'];
+        const defaultMenu = [
+            { id: 1, categoria: 'Vaso Plástico', precio: 0.50, requiereSabor: true, requiereRetorno: false },
+            { id: 2, categoria: 'Vaso Plástico', precio: 0.75, requiereSabor: true, requiereRetorno: false },
+            { id: 3, categoria: 'Vaso Vidrio', precio: 1.00, requiereSabor: true, requiereRetorno: true },
+            { id: 4, categoria: 'Jarra', precio: 2.00, requiereSabor: true, requiereRetorno: true },
+            { id: 5, categoria: 'Preparado', precio: 2.00, requiereSabor: false, requiereRetorno: false }
+        ];
+
         const AppJugosPOS = () => {
-            const [vendedoras, setVendedoras] = useState(['DANIELA']);
+            // SISTEMA DE USUARIOS
+            const [loggedInUser, setLoggedInUser] = useState(null); 
+            const [loginInput, setLoginInput] = useState('');
+            const [loginErrorGeneral, setLoginErrorGeneral] = useState(false);
+
+            // DATOS DE FIREBASE
+            const [vendedoras, setVendedoras] = useState([]);
             const [ventasHistoricas, setVentasHistoricas] = useState([]);
             const [pendientes, setPendientes] = useState([]); 
+            const [sabores, setSabores] = useState([]);
+            const [menu, setMenu] = useState([]);
 
             const [vendedoraActiva, setVendedoraActiva] = useState(null);
             const [ordenActual, setOrdenActual] = useState([]);
             
-            const [accionPendiente, setAccionPendiente] = useState(null);
+            // MODALES
+            const [accionPendiente, setAccionPendiente] = useState(null); 
             const [adminPassword, setAdminPassword] = useState('');
             const [loginError, setLoginError] = useState(false);
             const [productoPendiente, setProductoPendiente] = useState(null); 
+            
             const [modalRetornosActivo, setModalRetornosActivo] = useState(null); 
             const [modalHistorialActivo, setModalHistorialActivo] = useState(null);
             const [modalCierreActivo, setModalCierreActivo] = useState(false);
             const [modalPersonalActivo, setModalPersonalActivo] = useState(false);
             const [modalGestorVentasActivo, setModalGestorVentasActivo] = useState(false);
+            
+            // NUEVOS MODALES DE CONFIGURACIÓN
+            const [modalEditarPinActivo, setModalEditarPinActivo] = useState(null);
+            const [modalSaboresActivo, setModalSaboresActivo] = useState(false);
+            const [modalMenuActivo, setModalMenuActivo] = useState(false);
 
             useEffect(() => {
+                // Vendedoras y asegurar que Daniela exista
                 const unsubVendedoras = db.collection('vendedoras').onSnapshot(snap => {
                     const arr = [];
-                    snap.forEach(doc => arr.push(doc.id));
-                    if(arr.length > 0) setVendedoras(arr);
-                    else setVendedoras(['DANIELA']); 
+                    snap.forEach(doc => arr.push({ id: doc.id, ...doc.data() }));
+                    
+                    const tieneDaniela = arr.find(v => v.nombre === 'DANIELA');
+                    if (!tieneDaniela) {
+                        db.collection('vendedoras').doc('DANIELA').set({ nombre: 'DANIELA', pin: '1234', role: 'admin' });
+                    }
+                    setVendedoras(arr);
                 });
 
-                // Solo traemos las ventas que estén "activas" para la pantalla del día
                 const unsubVentas = db.collection('ventas').orderBy('createdAt', 'desc').onSnapshot(snap => {
                     const arr = [];
                     snap.forEach(doc => {
                         const data = doc.data();
-                        // Filtramos para que solo se vean las que no han sido cerradas
-                        if(data.estado !== 'cerrado') {
-                            arr.push({ id_db: doc.id, ...data });
-                        }
+                        if(data.estado !== 'cerrado') arr.push({ id_db: doc.id, ...data });
                     });
                     setVentasHistoricas(arr);
                 });
@@ -205,33 +240,60 @@
                     setPendientes(arr);
                 });
 
-                return () => { unsubVendedoras(); unsubVentas(); unsubPendientes(); }
+                // Cargar Configuración (Sabores y Menú)
+                const unsubSabores = db.collection('configuracion').doc('sabores').onSnapshot(doc => {
+                    if(doc.exists) setSabores(doc.data().items);
+                    else db.collection('configuracion').doc('sabores').set({items: defaultSabores});
+                });
+
+                const unsubMenu = db.collection('configuracion').doc('menu').onSnapshot(doc => {
+                    if(doc.exists) setMenu(doc.data().items);
+                    else db.collection('configuracion').doc('menu').set({items: defaultMenu});
+                });
+
+                return () => { unsubVendedoras(); unsubVentas(); unsubPendientes(); unsubSabores(); unsubMenu(); }
             }, []);
 
-            const sabores = ['Mora', 'Tomate', 'Guanábana', 'Naranja', 'Alfalfa', 'Limonada'];
-            const menu = [
-                { id: 1, categoria: 'Vaso Plástico', precio: 0.50, requiereSabor: true, requiereRetorno: false },
-                { id: 2, categoria: 'Vaso Plástico', precio: 0.75, requiereSabor: true, requiereRetorno: false },
-                { id: 3, categoria: 'Vaso Plástico', precio: 1.00, requiereSabor: true, requiereRetorno: false },
-                { id: 4, categoria: 'Vaso Plástico', precio: 1.50, requiereSabor: true, requiereRetorno: false },
-                { id: 5, categoria: 'Vaso Vidrio', precio: 0.50, requiereSabor: true, requiereRetorno: true },
-                { id: 6, categoria: 'Vaso Vidrio', precio: 0.75, requiereSabor: true, requiereRetorno: true },
-                { id: 7, categoria: 'Vaso Vidrio', precio: 1.00, requiereSabor: true, requiereRetorno: true },
-                { id: 8, categoria: 'Vaso Vidrio', precio: 1.50, requiereSabor: true, requiereRetorno: true },
-                { id: 9, categoria: 'Jarra', precio: 2.00, requiereSabor: true, requiereRetorno: true },
-                { id: 10, categoria: 'Jarra', precio: 3.00, requiereSabor: true, requiereRetorno: true },
-                { id: 11, categoria: 'Jarra', precio: 5.00, requiereSabor: true, requiereRetorno: true },
-                { id: 12, categoria: 'Preparado', precio: 2.00, requiereSabor: false, requiereRetorno: false },
-                { id: 13, categoria: 'Preparado', precio: 3.00, requiereSabor: false, requiereRetorno: false }
-            ];
+            // FUNCIÓN DE INGRESO (LOGIN)
+            const procesarLoginPrincipal = () => {
+                const vendedoraEncontrada = vendedoras.find(v => v.pin === loginInput);
+                
+                if (vendedoraEncontrada) {
+                    setLoggedInUser({ 
+                        role: vendedoraEncontrada.role === 'admin' ? 'admin' : 'vendor', 
+                        nombre: vendedoraEncontrada.nombre 
+                    });
+                    setLoginErrorGeneral(false);
+                } else {
+                    setLoginErrorGeneral(true);
+                }
+                setLoginInput('');
+            };
+
+            const cerrarSesion = () => {
+                setLoggedInUser(null);
+                setVendedoraActiva(null);
+                setOrdenActual([]);
+                setModalPersonalActivo(false);
+                setModalGestorVentasActivo(false);
+            };
+
+            const agruparMenuPorCategoria = () => {
+                const grupos = {};
+                menu.forEach(item => {
+                    if(!grupos[item.categoria]) grupos[item.categoria] = [];
+                    grupos[item.categoria].push(item);
+                });
+                return grupos;
+            };
 
             const manejarClickProducto = (producto) => {
                 if (producto.requiereSabor) setProductoPendiente(producto);
-                else agregarAlCarrito(producto, 'Especial');
+                else agregarAlCarrito(producto, 'Natural');
             };
 
             const agregarAlCarrito = (producto, sabor) => {
-                setOrdenActual([...ordenActual, { id_carrito: Date.now() + Math.random(), categoria: producto.categoria, precio: producto.precio, requiereRetorno: producto.requiereRetorno, sabor: sabor }]);
+                setOrdenActual([...ordenActual, { id_carrito: Date.now() + Math.random(), categoria: producto.categoria, precio: parseFloat(producto.precio), requiereRetorno: producto.requiereRetorno, sabor: sabor }]);
                 setProductoPendiente(null);
             };
 
@@ -252,7 +314,7 @@
                         hora: horaActual,
                         pagado: pagadoAlInstante,
                         id_orden: id_orden,
-                        estado: 'activo', // Se guarda como activa para el día actual
+                        estado: 'activo',
                         createdAt: Date.now()
                     });
                 });
@@ -274,7 +336,6 @@
             const resolverPendiente = (id_orden, tipo) => {
                 const p = pendientes.find(x => x.id_orden === id_orden);
                 if(!p) return;
-
                 const docRef = db.collection('pendientes').doc(id_orden.toString());
 
                 if (tipo === 'vaso') {
@@ -293,6 +354,7 @@
                 }
             };
 
+            // ADMINISTRACIÓN
             const solicitarClave = (accion) => {
                 setAccionPendiente(accion);
                 setAdminPassword('');
@@ -300,11 +362,12 @@
             };
 
             const ejecutarAccionSegura = () => {
-                if (adminPassword === "1234") {
+                const admin = vendedoras.find(v => v.role === 'admin');
+                
+                if (admin && adminPassword === admin.pin) {
                     if (accionPendiente.tipo === 'eliminar_vendedora') {
                         db.collection('vendedoras').doc(accionPendiente.payload).delete();
                     } else if (accionPendiente.tipo === 'eliminar_venta') {
-                        // Eliminar definitivamente (solo si hubo error)
                         db.collection('ventas').doc(accionPendiente.payload).delete();
                     } else if (accionPendiente.tipo === 'cierre_dia') {
                         setModalCierreActivo(true);
@@ -319,8 +382,6 @@
 
             const procesarCierreDeCaja = () => {
                 const fechaCierre = new Date().toLocaleDateString();
-                
-                // En lugar de borrar, actualizamos el estado a "cerrado"
                 ventasHistoricas.forEach(v => { 
                     if(v.id_db) {
                         db.collection('ventas').doc(v.id_db).update({ 
@@ -330,35 +391,75 @@
                         });
                     }
                 });
-                
                 setModalCierreActivo(false);
             };
 
             const totalOrden = ordenActual.reduce((total, item) => total + item.precio, 0);
 
-            // --- VISTA 1: DASHBOARD PRINCIPAL (INICIO) ---
+            // --- VISTA 0: PANTALLA DE LOGIN ---
+            if (!loggedInUser) {
+                return (
+                    <div className="login-screen" style={{justifyContent: 'center', paddingTop: 0}}>
+                        <div className="modal-content" style={{maxWidth: '450px', padding: '50px', textAlign: 'center', boxShadow: 'var(--hover-shadow)'}}>
+                            <h1 style={{fontSize: '2.5rem', marginBottom: '10px', color: 'var(--accent-orange)'}}>🍹 La Veci</h1>
+                            <p style={{color: 'var(--text-light)', marginBottom: '30px', fontSize: '1.1rem'}}>Ingresa tu PIN personal</p>
+                            
+                            <input 
+                                type="password" 
+                                placeholder="****" 
+                                value={loginInput}
+                                onChange={(e) => setLoginInput(e.target.value)}
+                                onKeyPress={(e) => e.key === 'Enter' && procesarLoginPrincipal()}
+                                style={{width: '100%', padding: '20px', borderRadius: '20px', border: '2px solid var(--border-color)', marginBottom: '20px', fontSize: '2rem', textAlign: 'center', background: 'var(--white)', letterSpacing: '5px'}}
+                                autoFocus
+                            />
+                            
+                            {loginErrorGeneral && <p style={{color: 'var(--danger)', marginBottom: '20px', fontWeight: '600'}}>PIN incorrecto o no registrado.</p>}
+                            
+                            <button className="btn-iniciar-venta" onClick={procesarLoginPrincipal} style={{padding: '20px', fontSize: '1.2rem'}}>
+                                Entrar al Sistema
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            // --- VISTA 1: DASHBOARD PRINCIPAL (DEPENDE DEL ROL) ---
             if (!vendedoraActiva) {
+                
+                const vendedorasVisibles = loggedInUser.role === 'admin' 
+                    ? vendedoras 
+                    : vendedoras.filter(v => v.nombre === loggedInUser.nombre);
+
                 return (
                     <div className="login-screen">
                         
-                        <div className="admin-corner">
-                            <button className="btn-esquina" onClick={() => setModalPersonalActivo(true)}>
-                                👥 Personal
+                        {/* NUEVA BARRA DE NAVEGACIÓN SUPERIOR */}
+                        <div className="top-navbar">
+                            <button className="btn-volver" onClick={cerrarSesion} style={{background: 'var(--white)', padding: '12px 25px', boxShadow: 'var(--soft-shadow)', border: 'none'}}>
+                                🚪 Salir
                             </button>
-                            <button className="btn-esquina" onClick={() => setModalGestorVentasActivo(true)}>
-                                📊 Gestión de Ventas Global
-                            </button>
+
+                            {loggedInUser.role === 'admin' && (
+                                <div className="admin-menu-row">
+                                    <button className="btn-esquina" onClick={() => setModalPersonalActivo(true)}> 👥 Personal / PINs </button>
+                                    <button className="btn-esquina" onClick={() => setModalSaboresActivo(true)}> 🍎 Sabores </button>
+                                    <button className="btn-esquina" onClick={() => setModalMenuActivo(true)}> 📝 Menú y Precios </button>
+                                    <button className="btn-esquina" onClick={() => setModalGestorVentasActivo(true)}> 📊 Ventas Globales </button>
+                                </div>
+                            )}
                         </div>
 
+                        {/* MODAL: VERIFICACIÓN DE SEGURIDAD (PIN para borrar) */}
                         {accionPendiente && (
                             <div className="modal-overlay" style={{zIndex: 200}}>
                                 <div className="modal-content" style={{maxWidth: '400px', padding: '40px'}}>
                                     <h3>Acción Protegida</h3>
                                     <p style={{textAlign: 'center', color: 'var(--text-light)', marginBottom: '20px'}}>
-                                        {accionPendiente.tipo === 'cierre_dia' ? 'Clave requerida para Cerrar el Día.' : 'Clave requerida para borrar registros.'}
+                                        Por seguridad, ingresa tu clave maestra (DANIELA).
                                     </p>
                                     <input 
-                                        type="password" placeholder="Clave" value={adminPassword} onChange={(e) => setAdminPassword(e.target.value)}
+                                        type="password" placeholder="Clave Maestra" value={adminPassword} onChange={(e) => setAdminPassword(e.target.value)}
                                         style={{width: '100%', padding: '20px', borderRadius: '20px', border: '1px solid var(--border-color)', marginBottom: '15px', fontSize: '1.2rem', textAlign: 'center', background: 'var(--white)'}}
                                         autoFocus
                                     />
@@ -369,26 +470,40 @@
                             </div>
                         )}
 
+                        {/* MODAL: GESTIÓN DE PERSONAL Y PINS */}
                         {modalPersonalActivo && (
                             <div className="modal-overlay">
                                 <div className="modal-content">
                                     <h3>Equipo de Ventas</h3>
-                                    <p style={{textAlign: 'center', color: 'var(--text-light)', margin: '-20px 0 20px'}}>Agrega o retira vendedores del turno</p>
+                                    <p style={{textAlign: 'center', color: 'var(--text-light)', margin: '-20px 0 20px'}}>Agrega vendedoras y asígnales un PIN</p>
                                     <div style={{display: 'flex', gap:'10px', marginBottom: '20px'}}>
-                                        <input id="nuevaVend" placeholder="Nombre..." style={{flex: 1, padding: '15px', borderRadius: '15px', border: '1px solid var(--border-color)', fontSize: '1rem'}}/>
+                                        <input id="nuevaVend" placeholder="Nombre" className="input-elegante" style={{flex: 2, marginBottom: 0}}/>
+                                        <input id="nuevoPin" type="number" placeholder="PIN (ej. 5678)" className="input-elegante" style={{flex: 1, marginBottom: 0}}/>
                                         <button onClick={() => { 
-                                            const val = document.getElementById('nuevaVend').value.trim(); 
-                                            if(val) { 
-                                                db.collection('vendedoras').doc(val).set({ nombre: val }); 
+                                            const nombre = document.getElementById('nuevaVend').value.trim(); 
+                                            const pin = document.getElementById('nuevoPin').value.trim(); 
+                                            if(nombre && pin) { 
+                                                db.collection('vendedoras').doc(nombre).set({ nombre, pin, role: 'vendor' }); 
                                                 document.getElementById('nuevaVend').value=''; 
-                                            } 
+                                                document.getElementById('nuevoPin').value=''; 
+                                            } else {
+                                                alert("Ingresa nombre y PIN");
+                                            }
                                         }} className="btn-iniciar-venta" style={{padding: '10px 20px', width: 'auto'}}>Agregar</button>
                                     </div>
                                     <div className="lista-scroll" style={{maxHeight: '300px'}}>
                                         {vendedoras.map(v => (
-                                            <div key={v} className="modal-item" style={{padding: '12px 20px'}}>
-                                                <strong style={{fontSize: '1.1rem'}}>{v}</strong>
-                                                <button onClick={()=> solicitarClave({tipo: 'eliminar_vendedora', payload: v})} className="btn-eliminar" style={{width: '35px', height: '35px'}}>🗑️</button>
+                                            <div key={v.nombre} className="modal-item" style={{padding: '12px 20px'}}>
+                                                <div>
+                                                    <strong style={{fontSize: '1.1rem'}}>{v.nombre}</strong><br/>
+                                                    <span style={{fontSize: '0.85rem', color: 'var(--text-light)'}}>PIN: {v.pin}</span>
+                                                </div>
+                                                <div style={{display: 'flex', gap: '8px'}}>
+                                                    <button onClick={() => setModalEditarPinActivo(v.nombre)} className="btn-accion-mini" style={{width: '35px', height: '35px', padding: 0}}>✏️</button>
+                                                    {v.nombre !== 'DANIELA' && (
+                                                        <button onClick={()=> solicitarClave({tipo: 'eliminar_vendedora', payload: v.nombre})} className="btn-eliminar" style={{width: '35px', height: '35px'}}>🗑️</button>
+                                                    )}
+                                                </div>
                                             </div>
                                         ))}
                                     </div>
@@ -397,13 +512,116 @@
                             </div>
                         )}
 
+                        {/* MODAL: CAMBIAR PIN (SUB-MODAL) */}
+                        {modalEditarPinActivo && (
+                            <div className="modal-overlay" style={{zIndex: 150}}>
+                                <div className="modal-content" style={{maxWidth: '400px'}}>
+                                    <h3>Cambiar PIN de {modalEditarPinActivo}</h3>
+                                    <input id="editPinInput" type="number" placeholder="Nuevo PIN" className="input-elegante" autoFocus/>
+                                    <button onClick={() => {
+                                        const nuevoPin = document.getElementById('editPinInput').value.trim();
+                                        if(nuevoPin) {
+                                            db.collection('vendedoras').doc(modalEditarPinActivo).update({ pin: nuevoPin });
+                                            setModalEditarPinActivo(null);
+                                        }
+                                    }} className="btn-iniciar-venta">Guardar PIN</button>
+                                    <button className="btn-cancelar" onClick={() => setModalEditarPinActivo(null)}>Cancelar</button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* MODAL: GESTIÓN DE SABORES */}
+                        {modalSaboresActivo && (
+                            <div className="modal-overlay">
+                                <div className="modal-content">
+                                    <h3>Gestión de Sabores</h3>
+                                    <p style={{textAlign: 'center', color: 'var(--text-light)', margin: '-20px 0 20px'}}>Agrega las frutas disponibles hoy</p>
+                                    <div style={{display: 'flex', gap:'10px', marginBottom: '20px'}}>
+                                        <input id="nuevoSabor" placeholder="Ej. Fresa" className="input-elegante" style={{marginBottom: 0}}/>
+                                        <button onClick={() => { 
+                                            const val = document.getElementById('nuevoSabor').value.trim(); 
+                                            if(val && !sabores.includes(val)) { 
+                                                const nuevosSabores = [...sabores, val];
+                                                db.collection('configuracion').doc('sabores').update({ items: nuevosSabores });
+                                                document.getElementById('nuevoSabor').value=''; 
+                                            }
+                                        }} className="btn-iniciar-venta" style={{padding: '10px 20px', width: 'auto'}}>Add</button>
+                                    </div>
+                                    <div className="lista-scroll" style={{maxHeight: '300px'}}>
+                                        {sabores.map((s, index) => (
+                                            <div key={index} className="modal-item" style={{padding: '12px 20px'}}>
+                                                <strong style={{fontSize: '1.1rem'}}>{s}</strong>
+                                                <button onClick={()=>{
+                                                    const nuevosSabores = sabores.filter(item => item !== s);
+                                                    db.collection('configuracion').doc('sabores').update({ items: nuevosSabores });
+                                                }} className="btn-eliminar" style={{width: '35px', height: '35px'}}>🗑️</button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <button className="btn-cancelar" onClick={() => setModalSaboresActivo(false)}>Cerrar</button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* MODAL: GESTIÓN DE MENÚ */}
+                        {modalMenuActivo && (
+                            <div className="modal-overlay">
+                                <div className="modal-content" style={{maxWidth: '700px'}}>
+                                    <h3>Menú y Precios</h3>
+                                    <div style={{background: 'var(--white)', padding: '20px', borderRadius: '20px', border: '1px solid var(--border-color)', marginBottom: '20px'}}>
+                                        <h4 style={{marginBottom: '15px'}}>Agregar Nuevo Producto</h4>
+                                        <div style={{display: 'flex', gap:'10px', marginBottom: '15px'}}>
+                                            <input id="mCat" placeholder="Categoría (Ej. Vaso Plástico)" className="input-elegante" style={{flex: 2, marginBottom: 0}}/>
+                                            <input id="mPrecio" type="number" step="0.25" placeholder="Precio (Ej. 1.50)" className="input-elegante" style={{flex: 1, marginBottom: 0}}/>
+                                        </div>
+                                        <div style={{display: 'flex', gap: '20px', marginBottom: '15px', justifyContent: 'center'}}>
+                                            <label className="checkbox-label"><input id="mSabor" type="checkbox"/> ¿Exige elegir sabor?</label>
+                                            <label className="checkbox-label"><input id="mRetorno" type="checkbox"/> ¿Devuelve envase?</label>
+                                        </div>
+                                        <button onClick={() => { 
+                                            const cat = document.getElementById('mCat').value.trim(); 
+                                            const precio = parseFloat(document.getElementById('mPrecio').value);
+                                            const reqSabor = document.getElementById('mSabor').checked;
+                                            const reqRetorno = document.getElementById('mRetorno').checked;
+                                            
+                                            if(cat && !isNaN(precio)) { 
+                                                const nuevoMenu = [...menu, { id: Date.now(), categoria: cat, precio: precio, requiereSabor: reqSabor, requiereRetorno: reqRetorno }];
+                                                db.collection('configuracion').doc('menu').update({ items: nuevoMenu });
+                                                document.getElementById('mCat').value=''; document.getElementById('mPrecio').value='';
+                                            } else { alert("Completa Categoría y Precio"); }
+                                        }} className="btn-iniciar-venta" style={{width: '100%', padding: '15px'}}>Guardar Producto</button>
+                                    </div>
+
+                                    <div className="lista-scroll" style={{maxHeight: '300px'}}>
+                                        {menu.map((m) => (
+                                            <div key={m.id} className="modal-item" style={{padding: '12px 20px'}}>
+                                                <div>
+                                                    <strong style={{fontSize: '1.1rem'}}>{m.categoria} - ${m.precio.toFixed(2)}</strong><br/>
+                                                    <span style={{fontSize: '0.85rem', color: 'var(--text-light)'}}>
+                                                        {m.requiereSabor ? 'Con Sabor' : 'Sin Sabor'} | {m.requiereRetorno ? 'Envase Retornable' : 'Envase Descartable'}
+                                                    </span>
+                                                </div>
+                                                <button onClick={()=>{
+                                                    const nuevoMenu = menu.filter(item => item.id !== m.id);
+                                                    db.collection('configuracion').doc('menu').update({ items: nuevoMenu });
+                                                }} className="btn-eliminar" style={{width: '35px', height: '35px'}}>🗑️</button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <button className="btn-cancelar" onClick={() => setModalMenuActivo(false)}>Cerrar</button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* MODAL: GESTIÓN DE VENTAS GLOBAL */}
                         {modalGestorVentasActivo && (
                             <div className="modal-overlay">
                                 <div className="modal-content" style={{maxWidth: '700px'}}>
                                     <h3>Gestión de Ventas Global</h3>
                                     <p style={{textAlign: 'center', color: 'var(--text-light)', margin: '-20px 0 20px'}}>Historial activo y cierre de caja</p>
                                     <div className="lista-scroll" style={{maxHeight: '400px', marginBottom: '20px'}}>
-                                        {vendedoras.map(v => {
+                                        {vendedoras.map(vObj => {
+                                            const v = vObj.nombre;
                                             const ventasVendedora = ventasHistoricas.filter(x => x.vendedora === v);
                                             if (ventasVendedora.length === 0) return null;
                                             return (
@@ -415,7 +633,7 @@
                                                         <div key={venta.id_venta} className="modal-item" style={{padding: '12px 20px', gap: '10px', marginBottom: '8px'}}>
                                                             <div style={{fontSize: '0.95rem', textAlign: 'left'}}>
                                                                 <strong>{venta.categoria} ({venta.sabor})</strong><br/>
-                                                                <span style={{color: 'var(--text-light)'}}>{venta.hora} • ${venta.precio.toFixed(2)}</span>
+                                                                <span style={{color: 'var(--text-light)'}}>{venta.hora} • ${venta.precio.toFixed(2)} {venta.pagado ? '' : '(Debe)'}</span>
                                                             </div>
                                                             <button onClick={()=> solicitarClave({tipo: 'eliminar_venta', payload: venta.id_db})} className="btn-eliminar" style={{width: '35px', height: '35px', fontSize: '1.1rem'}}>🗑️</button>
                                                         </div>
@@ -433,13 +651,15 @@
                             </div>
                         )}
 
+                        {/* MODAL: CIERRE DE CAJA */}
                         {modalCierreActivo && (
                             <div className="modal-overlay">
                                 <div className="modal-content">
                                     <h3>Cierre de Día</h3>
                                     <p style={{textAlign: 'center', color: 'var(--text-light)', margin: '-20px 0 20px'}}>El dinero de comisiones se marca como entregado y las ventas se guardan en el historial general de la nube.</p>
                                     <div className="lista-scroll">
-                                        {vendedoras.map(v => {
+                                        {vendedoras.map(vObj => {
+                                            const v = vObj.nombre;
                                             const facturado = ventasHistoricas.filter(x => x.vendedora === v && x.pagado).reduce((s, x) => s + x.precio, 0);
                                             if(facturado === 0) return null;
                                             
@@ -450,7 +670,7 @@
                                                     <span>Total en Caja: <strong>${facturado.toFixed(2)}</strong></span>
                                                     <span style={{color: 'var(--success)', fontWeight: 'bold'}}>Comisión generada: ${comision.toFixed(2)}</span>
                                                     <div style={{background: '#FDFCF8', padding: '15px', borderRadius: '15px', width: '100%', fontSize: '1rem', color: 'var(--text-light)', border: '1px solid var(--border-color)', marginTop: '10px'}}>
-                                                        "Buen trabajo el día de hoy, {v}. Aquí está el pago de tu comisión. ¡Gracias por tu esfuerzo!"
+                                                        "Buen trabajo el día de hoy, {v}. Aquí está el pago de tu comisión."
                                                     </div>
                                                 </div>
                                             )
@@ -464,10 +684,11 @@
                             </div>
                         )}
                         
+                        {/* MODAL: HISTORIAL DE VENTAS INDIVIDUAL */}
                         {modalHistorialActivo && (
                             <div className="modal-overlay">
                                 <div className="modal-content">
-                                    <h3>Historial de Ventas</h3>
+                                    <h3>Mis Ventas</h3>
                                     <p style={{textAlign: 'center', color: 'var(--text-light)', margin: '-20px 0 25px'}}> Atendió: <strong>{modalHistorialActivo}</strong> </p>
                                     <div className="lista-scroll">
                                         {ventasHistoricas.filter(v => v.vendedora === modalHistorialActivo).length === 0 ? (
@@ -489,6 +710,7 @@
                             </div>
                         )}
 
+                        {/* MODAL: GESTIÓN DE RETORNOS Y PAGOS PENDIENTES */}
                         {modalRetornosActivo && (
                             <div className="modal-overlay">
                                 <div className="modal-content" style={{maxWidth: '600px'}}>
@@ -524,13 +746,14 @@
                             </div>
                         )}
 
-                        <div style={{textAlign: 'center', marginBottom: '20px'}}>
-                            <h1 style={{fontSize: '3.5rem', marginBottom: '10px'}}>Inicio</h1>
-                            <p style={{color: 'var(--text-light)', fontSize: '1.1rem'}}>Control de cajas y ventas del día</p>
+                        <div style={{textAlign: 'center', marginBottom: '20px', marginTop: '10px'}}>
+                            <h1 style={{fontSize: '3.5rem', marginBottom: '10px'}}>Hola, {loggedInUser.nombre}</h1>
+                            <p style={{color: 'var(--text-light)', fontSize: '1.1rem'}}>Tu resumen de turno actual</p>
                         </div>
                         
                         <div className="vendedoras-container">
-                            {vendedoras.map(nombre => {
+                            {vendedorasVisibles.map(vObj => {
+                                const nombre = vObj.nombre;
                                 const ventasHoy = ventasHistoricas.filter(v => v.vendedora === nombre && v.pagado).reduce((t, v) => t + v.precio, 0);
                                 const comision = ventasHoy * 0.30;
                                 
@@ -553,7 +776,7 @@
 
                                         <div className="acciones-card">
                                             <button className="btn-iniciar-venta" onClick={() => setVendedoraActiva(nombre)}> Abrir Terminal de Venta </button>
-                                            <button className="btn-secundario-dash" onClick={() => setModalHistorialActivo(nombre)}> Ver Historial de Ventas </button>
+                                            <button className="btn-secundario-dash" onClick={() => setModalHistorialActivo(nombre)}> Ver Mi Historial </button>
                                             
                                             {totalAlertas > 0 && (
                                                 <button className="btn-secundario-dash btn-alerta" onClick={() => setModalRetornosActivo(nombre)}>
@@ -570,6 +793,10 @@
             }
 
             // --- VISTA 2: TERMINAL DE VENTA POS ---
+            
+            // Agrupar menú por categoría para mostrarlo bonito
+            const menuAgrupado = agruparMenuPorCategoria();
+
             return (
                 <div className="pos-layout">
                     {/* MODAL SABORES */}
@@ -593,33 +820,21 @@
                             <h1>Terminal de Venta</h1>
                             <button className="btn-volver" onClick={() => { setVendedoraActiva(null); setOrdenActual([]); }}> Volver al Inicio </button>
                         </div>
-                        <div className="categoria-titulo">Vasos Plásticos</div>
-                        <div className="grid-productos">
-                            {menu.filter(p => p.categoria === 'Vaso Plástico').map(p => (
-                                <button key={p.id} className="btn-producto" onClick={() => manejarClickProducto(p)}>
-                                    <span className="prod-precio">${p.precio.toFixed(2)}</span>
-                                    <span className="prod-nombre">Para llevar</span>
-                                </button>
-                            ))}
-                        </div>
-                        <div className="categoria-titulo">Vidrio & Jarras</div>
-                        <div className="grid-productos">
-                            {menu.filter(p => p.requiereRetorno).map(p => (
-                                <button key={p.id} className="btn-producto" onClick={() => manejarClickProducto(p)}>
-                                    <span className="prod-precio">${p.precio.toFixed(2)}</span>
-                                    <span className="prod-nombre">{p.categoria}</span>
-                                </button>
-                            ))}
-                        </div>
-                        <div className="categoria-titulo">Preparados</div>
-                        <div className="grid-productos">
-                            {menu.filter(p => p.categoria === 'Preparado').map(p => (
-                                <button key={p.id} className="btn-producto" onClick={() => manejarClickProducto(p)}>
-                                    <span className="prod-precio">${p.precio.toFixed(2)}</span>
-                                    <span className="prod-nombre">Especial</span>
-                                </button>
-                            ))}
-                        </div>
+                        
+                        {Object.keys(menuAgrupado).map(cat => (
+                            <div key={cat}>
+                                <div className="categoria-titulo">{cat}</div>
+                                <div className="grid-productos">
+                                    {menuAgrupado[cat].map(p => (
+                                        <button key={p.id} className="btn-producto" onClick={() => manejarClickProducto(p)} style={p.requiereRetorno ? {borderColor: '#FFE0E0'} : {}}>
+                                            {p.requiereRetorno && <div className="badge-retorno">RETORNO</div>}
+                                            <span className="prod-precio">${p.precio.toFixed(2)}</span>
+                                            <span className="prod-nombre">{p.requiereSabor ? 'Elegir sabor' : 'Directo'}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
                     </div>
 
                     {/* PANEL DERECHO: TICKET */}
@@ -635,7 +850,7 @@
                                 ordenActual.map(item => (
                                     <div key={item.id_carrito} className="ticket-item">
                                         <div className="item-info">
-                                            <div className="item-titulo">{item.categoria}</div>
+                                            <div className="item-titulo">{item.categoria} {item.requiereRetorno ? '🔄' : ''}</div>
                                             <div className="item-sabor">{item.sabor}</div>
                                         </div>
                                         <div className="item-precio">${item.precio.toFixed(2)}</div>
