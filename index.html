@@ -29,11 +29,36 @@
         }
 
         * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
-        body { background-color: var(--bg-crema); color: var(--text-dark); height: 100vh; overflow: hidden; }
+        img, video, canvas {
+    max-width: 100%;
+    height: auto;
+}
+        html, body {
+    width: 100%;
+    min-height: 100dvh;
+    overflow-x: hidden;
+}
+
+body {
+    background-color: var(--bg-crema);
+    color: var(--text-dark);
+}
         h1, h2 { font-family: 'Playfair Display', serif; }
 
-        .pos-layout { display: flex; height: 100vh; width: 100vw; }
-        .catalogo-panel { flex: 1; padding: 40px; overflow-y: auto; background-color: var(--bg-crema); display: flex; flex-direction: column; }
+        .pos-layout {
+    display: flex;
+    width: 100%;
+    min-height: 100dvh;
+}
+        .catalogo-panel {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background-color: var(--bg-crema);
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
         .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; }
         .header-top h1 { font-size: 2.2rem; font-weight: 700; color: var(--text-dark); }
         .btn-volver { background: transparent; border: 1px solid var(--text-light); color: var(--text-dark); padding: 10px 20px; border-radius: 100px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
@@ -49,7 +74,16 @@
         .prod-precio { font-size: 1.5rem; font-weight: 700; color: var(--text-dark); }
         .prod-nombre { font-size: 0.9rem; color: var(--text-light); font-weight: 500; }
 
-        .ticket-panel { width: 400px; background: var(--white); border-left: 1px solid var(--border-color); display: flex; flex-direction: column; box-shadow: -10px 0 30px rgba(0,0,0,0.02); z-index: 10; }
+        .ticket-panel {
+    width: min(380px, 100%);
+    flex-shrink: 0;
+    background: var(--white);
+    border-left: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.02);
+    z-index: 10;
+}
         .ticket-header { padding: 35px 30px 25px; border-bottom: 1px solid var(--border-color); text-align: center; }
         .ticket-header h2 { font-size: 1.8rem; font-weight: 700; }
         .ticket-vendedora { color: var(--text-light); font-weight: 500; font-size: 1rem; margin-top: 5px; }
@@ -124,28 +158,64 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
-        @media (max-width: 768px) { 
-            .pos-layout { flex-direction: column; } 
-            .ticket-panel { width: 100%; height: 48vh; border-left: none; border-top: 1px solid var(--border-color); } 
-            .catalogo-panel { height: 52vh; padding: 20px;} 
-            .login-screen { padding: 0; }
-            .login-screen h1 { font-size: 2.2rem; }
-            
-            .top-navbar { flex-direction: column; gap: 15px; padding: 20px; align-items: center; }
-            .admin-menu-row { justify-content: center; }
-            
-            .btn-esquina { padding: 10px 15px; font-size: 0.85rem; border-radius: 12px;}
-            .vendedoras-container { grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 0 15px 40px 15px;}
-            .card-vendedora { padding: 15px 12px; border-radius: 20px; }
-            .card-vendedora h2 { font-size: 1.3rem; margin-bottom: 15px; }
-            .stats-box { padding: 10px; flex-direction: column; align-items: center; text-align: center; gap: 5px; border-radius: 12px;}
-            .stats-label { text-align: center; font-size: 0.75rem;}
-            .stats-label span { display: none; }
-            .stats-val { font-size: 1.1rem; }
-            .acciones-card { gap: 8px; margin-top: 15px; }
-            .btn-iniciar-venta { padding: 12px 5px; font-size: 0.85rem; border-radius: 12px; }
-            .btn-secundario-dash { padding: 10px 5px; font-size: 0.8rem; border-radius: 12px; }
-        }
+ @media (max-width: 900px) {
+    
+    .pos-layout {
+        flex-direction: column;
+        min-height: 100dvh;
+    }
+    
+    .catalogo-panel {
+        width: 100%;
+        min-height: 55dvh;
+        padding: 15px;
+    }
+    
+    .ticket-panel {
+        width: 100%;
+        min-height: 45dvh;
+        border-left: none;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .header-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .header-top h1 {
+        font-size: 1.7rem;
+    }
+    
+    .grid-productos {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    
+    .btn-producto {
+        height: 95px;
+        padding: 15px 10px;
+    }
+    
+    .prod-precio {
+        font-size: 1.2rem;
+    }
+    
+    .prod-nombre {
+        font-size: 0.75rem;
+    }
+    
+    .ticket-footer {
+        position: sticky;
+        bottom: 0;
+        background: white;
+    }
+    
+    .vendedoras-container {
+        grid-template-columns: 1fr;
+    }
+}
     </style>
 </head>
 <body>
