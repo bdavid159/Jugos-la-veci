@@ -29,45 +29,55 @@
         }
 
         * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+        
         img, video, canvas {
-    max-width: 100%;
-    height: auto;
-}
+            max-width: 100%;
+            height: auto;
+        }
+        
         html, body {
-    width: 100%;
-    min-height: 100dvh;
-    overflow-x: hidden;
-}
+            width: 100%;
+            min-height: 100dvh;
+            overflow-x: hidden;
+        }
 
-body {
-    background-color: var(--bg-crema);
-    color: var(--text-dark);
-}
+        body {
+            background-color: var(--bg-crema);
+            color: var(--text-dark);
+        }
+        
         h1, h2 { font-family: 'Playfair Display', serif; }
 
         .pos-layout {
-    display: flex;
-    width: 100%;
-    min-height: 100dvh;
-}
+            display: flex;
+            width: 100%;
+            min-height: 100dvh;
+        }
+        
         .catalogo-panel {
-    flex: 1;
-    padding: 20px;
-    overflow-y: auto;
-    background-color: var(--bg-crema);
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-}
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: var(--bg-crema);
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+        
         .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; }
         .header-top h1 { font-size: 2.2rem; font-weight: 700; color: var(--text-dark); }
         .btn-volver { background: transparent; border: 1px solid var(--text-light); color: var(--text-dark); padding: 10px 20px; border-radius: 100px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
         .btn-volver:active { transform: scale(0.95); background: var(--text-dark); color: var(--white); }
 
         .categoria-titulo { font-size: 1rem; color: var(--text-light); margin: 20px 0 15px 0; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; }
-        .grid-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; margin-bottom: 30px;}
+        
+        .grid-productos { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); 
+            gap: 15px; 
+            margin-bottom: 30px;
+        }
 
-        /* Ya no hay badge de retorno, el botón es completamente limpio */
         .btn-producto { background: var(--white); border: 1px solid var(--border-color); border-radius: 20px; padding: 25px 15px; text-align: center; cursor: pointer; transition: all 0.2s ease; box-shadow: var(--soft-shadow); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; height: 110px; position: relative;}
         .btn-producto:hover { transform: translateY(-4px); border-color: var(--text-dark); box-shadow: var(--hover-shadow); }
         .btn-producto:active { transform: scale(0.96); }
@@ -75,15 +85,16 @@ body {
         .prod-nombre { font-size: 0.9rem; color: var(--text-light); font-weight: 500; }
 
         .ticket-panel {
-    width: min(380px, 100%);
-    flex-shrink: 0;
-    background: var(--white);
-    border-left: 1px solid var(--border-color);
-    display: flex;
-    flex-direction: column;
-    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.02);
-    z-index: 10;
-}
+            width: min(380px, 100%);
+            flex-shrink: 0;
+            background: var(--white);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.02);
+            z-index: 10;
+        }
+        
         .ticket-header { padding: 35px 30px 25px; border-bottom: 1px solid var(--border-color); text-align: center; }
         .ticket-header h2 { font-size: 1.8rem; font-weight: 700; }
         .ticket-vendedora { color: var(--text-light); font-weight: 500; font-size: 1rem; margin-top: 5px; }
@@ -158,64 +169,65 @@ body {
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
- @media (max-width: 900px) {
-    
-    .pos-layout {
-        flex-direction: column;
-        min-height: 100dvh;
-    }
-    
-    .catalogo-panel {
-        width: 100%;
-        min-height: 55dvh;
-        padding: 15px;
-    }
-    
-    .ticket-panel {
-        width: 100%;
-        min-height: 45dvh;
-        border-left: none;
-        border-top: 1px solid var(--border-color);
-    }
-    
-    .header-top {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-    
-    .header-top h1 {
-        font-size: 1.7rem;
-    }
-    
-    .grid-productos {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-    }
-    
-    .btn-producto {
-        height: 95px;
-        padding: 15px 10px;
-    }
-    
-    .prod-precio {
-        font-size: 1.2rem;
-    }
-    
-    .prod-nombre {
-        font-size: 0.75rem;
-    }
-    
-    .ticket-footer {
-        position: sticky;
-        bottom: 0;
-        background: white;
-    }
-    
-    .vendedoras-container {
-        grid-template-columns: 1fr;
-    }
-}
+        @media (max-width: 900px) {
+            .pos-layout {
+                flex-direction: column;
+                min-height: 100dvh;
+            }
+            
+            .catalogo-panel {
+                width: 100%;
+                min-height: 55dvh;
+                padding: 15px;
+            }
+            
+            .ticket-panel {
+                width: 100%;
+                min-height: 45dvh;
+                border-left: none;
+                border-top: 1px solid var(--border-color);
+            }
+            
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .header-top h1 {
+                font-size: 1.7rem;
+            }
+            
+            .grid-productos {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            
+            .btn-producto {
+                height: 95px;
+                padding: 15px 10px;
+            }
+            
+            .prod-precio {
+                font-size: 1.2rem;
+            }
+            
+            .prod-nombre {
+                font-size: 0.75rem;
+            }
+            
+            .ticket-footer {
+                position: sticky;
+                bottom: 0;
+                background: white;
+            }
+            
+            /* AQUÍ ESTABA EL ERROR: Cambié 1fr por repeat(2, 1fr) para que siempre encajen de a dos */
+            .vendedoras-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -466,7 +478,6 @@ body {
 
             const totalOrden = ordenActual.reduce((total, item) => total + item.precio, 0);
 
-            // --- VISTA 0: PANTALLA DE LOGIN ---
             if (!loggedInUser) {
                 return (
                     <div className="login-screen" style={{justifyContent: 'center', paddingTop: 0}}>
@@ -494,7 +505,6 @@ body {
                 );
             }
 
-            // --- VISTA 1: DASHBOARD PRINCIPAL ---
             if (!vendedoraActiva) {
                 const vendedorasVisibles = loggedInUser.role === 'admin' 
                     ? vendedoras 
