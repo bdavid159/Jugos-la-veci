@@ -186,9 +186,16 @@
                     else setVendedoras(['DANIELA']); 
                 });
 
+                // Solo traemos las ventas que estén "activas" para la pantalla del día
                 const unsubVentas = db.collection('ventas').orderBy('createdAt', 'desc').onSnapshot(snap => {
                     const arr = [];
-                    snap.forEach(doc => arr.push({ id_db: doc.id, ...doc.data() }));
+                    snap.forEach(doc => {
+                        const data = doc.data();
+                        // Filtramos para que solo se vean las que no han sido cerradas
+                        if(data.estado !== 'cerrado') {
+                            arr.push({ id_db: doc.id, ...data });
+                        }
+                    });
                     setVentasHistoricas(arr);
                 });
 
@@ -228,7 +235,6 @@
                 setProductoPendiente(null);
             };
 
-            // LOGICA ACTUALIZADA PARA COBRAR EN BARRA VS MESA
             const cobrarOrden = (pagadoAlInstante, enBarra = false) => {
                 const horaActual = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 const id_orden = Date.now();
@@ -237,7 +243,6 @@
                 let resumenItems = [];
 
                 ordenActual.forEach(item => {
-                    // Si es en barra, forzamos a que el vidrio ya fue retornado
                     if (item.requiereRetorno && !enBarra) tieneVidrio = true;
                     resumenItems.push(`${item.categoria} (${item.sabor})`);
                     
@@ -247,6 +252,7 @@
                         hora: horaActual,
                         pagado: pagadoAlInstante,
                         id_orden: id_orden,
+                        estado: 'activo', // Se guarda como activa para el día actual
                         createdAt: Date.now()
                     });
                 });
@@ -298,6 +304,7 @@
                     if (accionPendiente.tipo === 'eliminar_vendedora') {
                         db.collection('vendedoras').doc(accionPendiente.payload).delete();
                     } else if (accionPendiente.tipo === 'eliminar_venta') {
+                        // Eliminar definitivamente (solo si hubo error)
                         db.collection('ventas').doc(accionPendiente.payload).delete();
                     } else if (accionPendiente.tipo === 'cierre_dia') {
                         setModalCierreActivo(true);
@@ -308,6 +315,23 @@
                 } else {
                     setLoginError(true);
                 }
+            };
+
+            const procesarCierreDeCaja = () => {
+                const fechaCierre = new Date().toLocaleDateString();
+                
+                // En lugar de borrar, actualizamos el estado a "cerrado"
+                ventasHistoricas.forEach(v => { 
+                    if(v.id_db) {
+                        db.collection('ventas').doc(v.id_db).update({ 
+                            estado: 'cerrado', 
+                            fechaCierre: fechaCierre,
+                            comisionEntregada: true 
+                        });
+                    }
+                });
+                
+                setModalCierreActivo(false);
             };
 
             const totalOrden = ordenActual.reduce((total, item) => total + item.precio, 0);
@@ -331,7 +355,7 @@
                                 <div className="modal-content" style={{maxWidth: '400px', padding: '40px'}}>
                                     <h3>Acción Protegida</h3>
                                     <p style={{textAlign: 'center', color: 'var(--text-light)', marginBottom: '20px'}}>
-                                        {accionPendiente.tipo === 'cierre_dia' ? 'Clave requerida para Cerrar el Día.' : 'Clave requerida para eliminar registros.'}
+                                        {accionPendiente.tipo === 'cierre_dia' ? 'Clave requerida para Cerrar el Día.' : 'Clave requerida para borrar registros.'}
                                     </p>
                                     <input 
                                         type="password" placeholder="Clave" value={adminPassword} onChange={(e) => setAdminPassword(e.target.value)}
@@ -377,7 +401,7 @@
                             <div className="modal-overlay">
                                 <div className="modal-content" style={{maxWidth: '700px'}}>
                                     <h3>Gestión de Ventas Global</h3>
-                                    <p style={{textAlign: 'center', color: 'var(--text-light)', margin: '-20px 0 20px'}}>Historial completo y cierre de caja</p>
+                                    <p style={{textAlign: 'center', color: 'var(--text-light)', margin: '-20px 0 20px'}}>Historial activo y cierre de caja</p>
                                     <div className="lista-scroll" style={{maxHeight: '400px', marginBottom: '20px'}}>
                                         {vendedoras.map(v => {
                                             const ventasVendedora = ventasHistoricas.filter(x => x.vendedora === v);
@@ -399,7 +423,7 @@
                                                 </div>
                                             )
                                         })}
-                                        {ventasHistoricas.length === 0 && <p style={{color: 'var(--text-light)', padding: '20px', textAlign: 'center', fontSize: '1.1rem'}}>No hay ventas registradas.</p>}
+                                        {ventasHistoricas.length === 0 && <p style={{color: 'var(--text-light)', padding: '20px', textAlign: 'center', fontSize: '1.1rem'}}>No hay ventas activas en este turno.</p>}
                                     </div>
                                     <button className="btn-iniciar-venta" style={{width: '100%', background: 'var(--text-dark)'}} onClick={() => { setModalGestorVentasActivo(false); solicitarClave({tipo: 'cierre_dia'}); }}>
                                         Realizar Cierre de Día
@@ -413,9 +437,12 @@
                             <div className="modal-overlay">
                                 <div className="modal-content">
                                     <h3>Cierre de Día</h3>
+                                    <p style={{textAlign: 'center', color: 'var(--text-light)', margin: '-20px 0 20px'}}>El dinero de comisiones se marca como entregado y las ventas se guardan en el historial general de la nube.</p>
                                     <div className="lista-scroll">
                                         {vendedoras.map(v => {
                                             const facturado = ventasHistoricas.filter(x => x.vendedora === v && x.pagado).reduce((s, x) => s + x.precio, 0);
+                                            if(facturado === 0) return null;
+                                            
                                             const comision = facturado * 0.3;
                                             return (
                                                 <div key={v} className="modal-item" style={{flexDirection: 'column', alignItems: 'flex-start', gap: '8px'}}>
@@ -423,17 +450,14 @@
                                                     <span>Total en Caja: <strong>${facturado.toFixed(2)}</strong></span>
                                                     <span style={{color: 'var(--success)', fontWeight: 'bold'}}>Comisión generada: ${comision.toFixed(2)}</span>
                                                     <div style={{background: '#FDFCF8', padding: '15px', borderRadius: '15px', width: '100%', fontSize: '1rem', color: 'var(--text-light)', border: '1px solid var(--border-color)', marginTop: '10px'}}>
-                                                        "Te agradecemos mucho por tu trabajo de hoy, {v}. Por favor, ayúdanos recibiendo el pago de tu comisión."
+                                                        "Buen trabajo el día de hoy, {v}. Aquí está el pago de tu comisión. ¡Gracias por tu esfuerzo!"
                                                     </div>
                                                 </div>
                                             )
                                         })}
                                     </div>
-                                    <button className="btn-iniciar-venta" style={{marginTop: '20px'}} onClick={() => { 
-                                        ventasHistoricas.forEach(v => { if(v.id_db) db.collection('ventas').doc(v.id_db).delete(); });
-                                        setModalCierreActivo(false); 
-                                    }}>
-                                        Finalizar Día y Limpiar Ventas
+                                    <button className="btn-iniciar-venta" style={{marginTop: '20px'}} onClick={procesarCierreDeCaja}>
+                                        Guardar Cierre y Limpiar Pantalla
                                     </button>
                                     <button className="btn-cancelar" onClick={() => setModalCierreActivo(false)}>Cancelar</button>
                                 </div>
@@ -625,8 +649,6 @@
                                 <span className="total-label">Total</span>
                                 <span className="total-monto">${totalOrden.toFixed(2)}</span>
                             </div>
-                            
-                            {/* NUEVOS BOTONES DE COBRO */}
                             <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
                                 <button className="btn-cobrar" style={{background: 'var(--accent-orange)'}} disabled={ordenActual.length === 0} onClick={() => cobrarOrden(true, true)}>
                                     🍹 Tomar en Barra (Pagado)
@@ -641,7 +663,6 @@
                                     </button>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
