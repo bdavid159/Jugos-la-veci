@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Jugos de la Veci - POS Cloud & Auth</title>
+    
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore-compat.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-crema: #FDFCF8;
+            --white: #FFFFFF;
+            --text-dark: #2C2C2E;
+            --text-light: #8E8E93;
+            --border-color: #E5E5EA;
+            --accent-orange: #E67E22;
+            --success: #34C759;
+            --danger: #FF3B30;
+            --soft-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            --hover-shadow: 0 15px 35px rgba(0,0,0,0.08);
+        }
+
+        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+        img, video, canvas {
+    max-width: 100%;
+    height: auto;
+}
+        html, body {
+    width: 100%;
+    min-height: 100dvh;
+    overflow-x: hidden;
+}
+
+body {
+    background-color: var(--bg-crema);
+    color: var(--text-dark);
+}
+        h1, h2 { font-family: 'Playfair Display', serif; }
+
+        .pos-layout {
+    display: flex;
+    width: 100%;
+    min-height: 100dvh;
+}
+        .catalogo-panel {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background-color: var(--bg-crema);
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; }
+        .header-top h1 { font-size: 2.2rem; font-weight: 700; color: var(--text-dark); }
+        .btn-volver { background: transparent; border: 1px solid var(--text-light); color: var(--text-dark); padding: 10px 20px; border-radius: 100px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+        .btn-volver:active { transform: scale(0.95); background: var(--text-dark); color: var(--white); }
+
+        .categoria-titulo { font-size: 1rem; color: var(--text-light); margin: 20px 0 15px 0; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; }
+        .grid-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; margin-bottom: 30px;}
+
+        /* Ya no hay badge de retorno, el botón es completamente limpio */
+        .btn-producto { background: var(--white); border: 1px solid var(--border-color); border-radius: 20px; padding: 25px 15px; text-align: center; cursor: pointer; transition: all 0.2s ease; box-shadow: var(--soft-shadow); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; height: 110px; position: relative;}
+        .btn-producto:hover { transform: translateY(-4px); border-color: var(--text-dark); box-shadow: var(--hover-shadow); }
+        .btn-producto:active { transform: scale(0.96); }
+        .prod-precio { font-size: 1.5rem; font-weight: 700; color: var(--text-dark); }
+        .prod-nombre { font-size: 0.9rem; color: var(--text-light); font-weight: 500; }
+
+        .ticket-panel {
+    width: min(380px, 100%);
+    flex-shrink: 0;
+    background: var(--white);
+    border-left: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.02);
+    z-index: 10;
+}
+        .ticket-header { padding: 35px 30px 25px; border-bottom: 1px solid var(--border-color); text-align: center; }
+        .ticket-header h2 { font-size: 1.8rem; font-weight: 700; }
+        .ticket-vendedora { color: var(--text-light); font-weight: 500; font-size: 1rem; margin-top: 5px; }
+
+        .ticket-body { flex: 1; overflow-y: auto; padding: 20px 30px; }
+        .ticket-item { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; border-bottom: 1px dashed var(--border-color); animation: fadeIn 0.3s ease; }
+        .item-info { flex: 1; }
+        .item-titulo { font-weight: 700; font-size: 1.1rem; color: var(--text-dark); }
+        .item-sabor { color: var(--text-light); font-size: 0.9rem; margin-top: 4px; }
+        .item-precio { font-weight: 700; font-size: 1.2rem; margin-left: 15px; }
+        .btn-eliminar { background: transparent; color: var(--text-light); border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-weight: bold; font-size: 1.2rem; transition: color 0.2s; }
+        .btn-eliminar:hover { color: var(--danger); }
+
+        .ticket-footer { padding: 30px; background: var(--white); border-top: 1px solid var(--border-color); }
+        .total-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .total-label { font-size: 1.2rem; font-weight: 600; color: var(--text-light); }
+        .total-monto { font-size: 2.5rem; font-weight: 700; color: var(--text-dark); }
+
+        .btn-cobrar { background: var(--text-dark); color: var(--white); border: none; flex: 1; padding: 18px 10px; border-radius: 20px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-cobrar:hover:not(:disabled) { background: #000; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
+        .btn-cobrar:active:not(:disabled) { transform: scale(0.98); }
+        .btn-cobrar:disabled { background: var(--border-color); color: var(--text-light); cursor: not-allowed; box-shadow: none; border-color: transparent;}
+        
+        .btn-pendiente { background: transparent; color: var(--text-dark); border: 2px solid var(--text-dark); }
+        .btn-pendiente:hover:not(:disabled) { background: var(--border-color); }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(44, 44, 46, 0.4); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; z-index: 100; animation: fadeIn 0.2s ease; padding: 20px;}
+        .modal-content { background: var(--bg-crema); padding: 45px; border-radius: 35px; width: 100%; max-width: 600px; box-shadow: 0 25px 60px rgba(0,0,0,0.15); animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); max-height: 90vh; display: flex; flex-direction: column;}
+        .modal-content h3 { font-family: 'Playfair Display', serif; font-size: 2rem; text-align: center; margin-bottom: 30px; color: var(--text-dark); }
+        
+        .grid-sabores { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .btn-sabor { background: var(--white); border: 1px solid var(--border-color); padding: 18px; border-radius: 20px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; color: var(--text-dark); }
+        .btn-sabor:hover { border-color: var(--text-dark); }
+        .btn-cancelar { width: 100%; background: transparent; border: none; color: var(--text-light); font-weight: 600; padding: 15px; margin-top: 25px; cursor: pointer; font-size: 1.1rem; transition: color 0.2s; }
+        .btn-cancelar:hover { color: var(--text-dark); }
+
+        .lista-scroll { overflow-y: auto; padding-right: 10px; flex: 1; margin-bottom: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .modal-item { background: var(--white); border: 1px solid var(--border-color); border-radius: 20px; padding: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--soft-shadow); }
+        .btn-accion-mini { background: transparent; border: 2px solid var(--text-dark); padding: 10px 15px; border-radius: 100px; font-weight: 700; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
+        .btn-accion-mini:hover { background: var(--border-color); }
+        .text-success { color: var(--success); border-color: var(--success); }
+        .text-success:hover { background: #E8F8F0; }
+
+        .login-screen { height: 100vh; display: flex; flex-direction: column; align-items: center; background: var(--bg-crema); overflow-y: auto; position: relative;}
+        
+        /* BARRA SUPERIOR */
+        .top-navbar { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 30px 40px 10px 40px; }
+        .admin-menu-row { display: flex; flex-direction: row; gap: 12px; flex-wrap: wrap; justify-content: flex-end; }
+        
+        .btn-esquina { background: var(--white); border: 1px solid var(--border-color); padding: 12px 20px; border-radius: 16px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.2s; color: var(--text-dark); box-shadow: var(--soft-shadow); display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-esquina:hover { border-color: var(--text-dark); transform: translateY(-2px); }
+        .btn-esquina:active { transform: scale(0.97); }
+
+        .vendedoras-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; margin-top: 20px; width: 100%; max-width: 1100px; justify-content: center; padding: 0 20px 60px 20px; }
+        .card-vendedora { background: var(--white); border: 1px solid var(--border-color); padding: 40px; border-radius: 35px; text-align: center; width: 100%; box-shadow: var(--soft-shadow); position: relative; }
+        .card-vendedora h2 { font-size: 2.2rem; margin-bottom: 25px; color: var(--text-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        
+        .stats-box { background: var(--bg-crema); padding: 18px; border-radius: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color);}
+        .stats-label { color: var(--text-light); font-size: 0.9rem; text-align: left; font-weight: 500; }
+        .stats-val { font-weight: 700; font-size: 1.2rem; color: var(--text-dark); }
+        
+        .acciones-card { display: flex; flex-direction: column; gap: 12px; margin-top: 25px; }
+        .btn-iniciar-venta { background: var(--text-dark); color: var(--white); border: none; padding: 18px; border-radius: 18px; font-size: 1.05rem; font-weight: 600; cursor: pointer; transition: transform 0.2s; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .btn-iniciar-venta:active { transform: scale(0.97); }
+        .btn-secundario-dash { background: transparent; border: 1px solid var(--border-color); padding: 15px; border-radius: 18px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.2s; color: var(--text-dark); }
+        .btn-secundario-dash:hover { border-color: var(--text-dark); }
+        .btn-alerta { border-color: var(--danger); color: var(--danger); }
+
+        .input-elegante { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid var(--border-color); fontSize: 1rem; marginBottom: 10px; }
+        .checkbox-label { display: flex; align-items: center; gap: 10px; font-size: 1rem; color: var(--text-dark); cursor: pointer; margin-bottom: 10px;}
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+ @media (max-width: 900px) {
+    
+    .pos-layout {
+        flex-direction: column;
+        min-height: 100dvh;
+    }
+    
+    .catalogo-panel {
+        width: 100%;
+        min-height: 55dvh;
+        padding: 15px;
+    }
+    
+    .ticket-panel {
+        width: 100%;
+        min-height: 45dvh;
+        border-left: none;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .header-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .header-top h1 {
+        font-size: 1.7rem;
+    }
+    
+    .grid-productos {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    
+    .btn-producto {
+        height: 95px;
+        padding: 15px 10px;
+    }
+    
+    .prod-precio {
+        font-size: 1.2rem;
+    }
+    
+    .prod-nombre {
+        font-size: 0.75rem;
+    }
+    
+    .ticket-footer {
+        position: sticky;
+        bottom: 0;
+        background: white;
+    }
+    
+    .vendedoras-container {
+        grid-template-columns: 1fr;
+    }
+}
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // 1. CONEXIÓN CON FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyB_nNUYxeyvrVRZw3atumGD4UcJtQ7pDvc",
+            authDomain: "jugos-de-la-veci.firebaseapp.com",
+            projectId: "jugos-de-la-veci",
+            storageBucket: "jugos-de-la-veci.firebasestorage.app",
+            messagingSenderId: "24775167130",
+            appId: "1:24775167130:web:8f261f0cd8b9674c022323"
+        };
+
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // 2. APLICACIÓN REACT
+        const { useState, useEffect } = React;
+
+        // LISTA COMPLETA DE MENÚ (13 Items)
+        const defaultSabores = ['Mora', 'Tomate', 'Guanábana', 'Naranja', 'Alfalfa', 'Limonada'];
+        const defaultMenu = [
+            { id: 1, categoria: 'Vaso Plástico', precio: 0.50, requiereSabor: true, requiereRetorno: false },
+            { id: 2, categoria: 'Vaso Plástico', precio: 0.75, requiereSabor: true, requiereRetorno: false },
+            { id: 3, categoria: 'Vaso Plástico', precio: 1.00, requiereSabor: true, requiereRetorno: false },
+            { id: 4, categoria: 'Vaso Plástico', precio: 1.50, requiereSabor: true, requiereRetorno: false },
+            { id: 5, categoria: 'Vaso Vidrio', precio: 0.50, requiereSabor: true, requiereRetorno: true },
+            { id: 6, categoria: 'Vaso Vidrio', precio: 0.75, requiereSabor: true, requiereRetorno: true },
+            { id: 7, categoria: 'Vaso Vidrio', precio: 1.00, requiereSabor: true, requiereRetorno: true },
+            { id: 8, categoria: 'Vaso Vidrio', precio: 1.50, requiereSabor: true, requiereRetorno: true },
+            { id: 9, categoria: 'Jarra', precio: 2.00, requiereSabor: true, requiereRetorno: true },
+            { id: 10, categoria: 'Jarra', precio: 3.00, requiereSabor: true, requiereRetorno: true },
+            { id: 11, categoria: 'Jarra', precio: 5.00, requiereSabor: true, requiereRetorno: true },
+            { id: 12, categoria: 'Preparado', precio: 2.00, requiereSabor: false, requiereRetorno: false },
+            { id: 13, categoria: 'Preparado', precio: 3.00, requiereSabor: false, requiereRetorno: false }
+        ];
+
+        const AppJugosPOS = () => {
+            const [loggedInUser, setLoggedInUser] = useState(null); 
+            const [loginInput, setLoginInput] = useState('');
+            const [loginErrorGeneral, setLoginErrorGeneral] = useState(false);
+
+            const [vendedoras, setVendedoras] = useState([]);
+            const [ventasHistoricas, setVentasHistoricas] = useState([]);
+            const [pendientes, setPendientes] = useState([]); 
+            const [sabores, setSabores] = useState([]);
+            const [menu, setMenu] = useState([]);
+
+            const [vendedoraActiva, setVendedoraActiva] = useState(null);
+            const [ordenActual, setOrdenActual] = useState([]);
+            
+            const [accionPendiente, setAccionPendiente] = useState(null); 
+            const [adminPassword, setAdminPassword] = useState('');
+            const [loginError, setLoginError] = useState(false);
+            const [productoPendiente, setProductoPendiente] = useState(null); 
+            
+            const [modalRetornosActivo, setModalRetornosActivo] = useState(null); 
+            const [modalHistorialActivo, setModalHistorialActivo] = useState(null);
+            const [modalCierreActivo, setModalCierreActivo] = useState(false);
+            const [modalPersonalActivo, setModalPersonalActivo] = useState(false);
+            const [modalGestorVentasActivo, setModalGestorVentasActivo] = useState(false);
+            
+            const [modalEditarPinActivo, setModalEditarPinActivo] = useState(null);
+            const [modalSaboresActivo, setModalSaboresActivo] = useState(false);
+            const [modalMenuActivo, setModalMenuActivo] = useState(false);
+
+            useEffect(() => {
+                const unsubVendedoras = db.collection('vendedoras').onSnapshot(snap => {
+                    const arr = [];
+                    snap.forEach(doc => arr.push({ id: doc.id, ...doc.data() }));
+                    
+                    const tieneDaniela = arr.find(v => v.nombre === 'DANIELA');
+                    if (!tieneDaniela) {
+                        db.collection('vendedoras').doc('DANIELA').set({ nombre: 'DANIELA', pin: '1234', role: 'admin' });
+                    }
+                    setVendedoras(arr);
+                });
+
+                const unsubVentas = db.collection('ventas').orderBy('createdAt', 'desc').onSnapshot(snap => {
+                    const arr = [];
+                    snap.forEach(doc => {
+                        const data = doc.data();
+                        if(data.estado !== 'cerrado') arr.push({ id_db: doc.id, ...data });
+                    });
+                    setVentasHistoricas(arr);
+                });
+
+                const unsubPendientes = db.collection('pendientes').orderBy('createdAt', 'desc').onSnapshot(snap => {
+                    const arr = [];
+                    snap.forEach(doc => arr.push({ ...doc.data(), id_orden: parseInt(doc.id) }));
+                    setPendientes(arr);
+                });
+
+                const unsubSabores = db.collection('configuracion').doc('sabores').onSnapshot(doc => {
+                    if(doc.exists) setSabores(doc.data().items);
+                    else db.collection('configuracion').doc('sabores').set({items: defaultSabores});
+                });
+
+                // Cambié el ID del documento a 'menu_final' para forzar que cargue la lista completa
+                const unsubMenu = db.collection('configuracion').doc('menu_final').onSnapshot(doc => {
+                    if(doc.exists) setMenu(doc.data().items);
+                    else db.collection('configuracion').doc('menu_final').set({items: defaultMenu});
+                });
+
+                return () => { unsubVendedoras(); unsubVentas(); unsubPendientes(); unsubSabores(); unsubMenu(); }
+            }, []);
+
+            const procesarLoginPrincipal = () => {
+                const vendedoraEncontrada = vendedoras.find(v => v.pin === loginInput);
+                
+                if (vendedoraEncontrada) {
+                    setLoggedInUser({ 
+                        role: vendedoraEncontrada.role === 'admin' ? 'admin' : 'vendor', 
+                        nombre: vendedoraEncontrada.nombre 
+                    });
+                    setLoginErrorGeneral(false);
+                } else {
+                    setLoginErrorGeneral(true);
+                }
+                setLoginInput('');
+            };
+
+            const cerrarSesion = () => {
+                setLoggedInUser(null);
+                setVendedoraActiva(null);
+                setOrdenActual([]);
+                setModalPersonalActivo(false);
+                setModalGestorVentasActivo(false);
+            };
+
+            const agruparMenuPorCategoria = () => {
+                const grupos = {};
+                menu.forEach(item => {
+                    if(!grupos[item.categoria]) grupos[item.categoria] = [];
+                    grupos[item.categoria].push(item);
+                });
+                return grupos;
+            };
+
+            const manejarClickProducto = (producto) => {
+                if (producto.requiereSabor) setProductoPendiente(producto);
+                else agregarAlCarrito(producto, 'Natural');
+            };
+
+            const agregarAlCarrito = (producto, sabor) => {
+                setOrdenActual([...ordenActual, { id_carrito: Date.now() + Math.random(), categoria: producto.categoria, precio: parseFloat(producto.precio), requiereRetorno: producto.requiereRetorno, sabor: sabor }]);
+                setProductoPendiente(null);
+            };
+
+            const cobrarOrden = (pagadoAlInstante, enBarra = false) => {
+                const horaActual = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                const id_orden = Date.now();
+                
+                let tieneVidrio = false;
+                let resumenItems = [];
+
+                ordenActual.forEach(item => {
+                    if (item.requiereRetorno && !enBarra) tieneVidrio = true;
+                    resumenItems.push(`${item.categoria} (${item.sabor})`);
+                    
+                    db.collection('ventas').add({
+                        ...item,
+                        vendedora: vendedoraActiva,
+                        hora: horaActual,
+                        pagado: pagadoAlInstante,
+                        id_orden: id_orden,
+                        estado: 'activo',
+                        createdAt: Date.now()
+                    });
+                });
+
+                if (tieneVidrio || !pagadoAlInstante) {
+                    db.collection('pendientes').doc(id_orden.toString()).set({
+                        vendedora: vendedoraActiva,
+                        items: resumenItems.join(' + '),
+                        total: totalOrden,
+                        debeVaso: tieneVidrio,
+                        debePago: !pagadoAlInstante,
+                        hora: horaActual,
+                        createdAt: Date.now()
+                    });
+                }
+                setOrdenActual([]);
+            };
+
+            const resolverPendiente = (id_orden, tipo) => {
+                const p = pendientes.find(x => x.id_orden === id_orden);
+                if(!p) return;
+                const docRef = db.collection('pendientes').doc(id_orden.toString());
+
+                if (tipo === 'vaso') {
+                    if (!p.debePago) docRef.delete();
+                    else docRef.update({ debeVaso: false });
+                }
+                if (tipo === 'pago') {
+                    if (!p.debeVaso) docRef.delete();
+                    else docRef.update({ debePago: false });
+
+                    ventasHistoricas.forEach(v => {
+                        if(v.id_orden === id_orden && v.id_db) {
+                            db.collection('ventas').doc(v.id_db).update({ pagado: true });
+                        }
+                    });
+                }
+            };
+
+            const solicitarClave = (accion) => {
+                setAccionPendiente(accion);
+                setAdminPassword('');
+                setLoginError(false);
+            };
+
+            const ejecutarAccionSegura = () => {
+                const admin = vendedoras.find(v => v.role === 'admin');
+                
+                if (admin && adminPassword === admin.pin) {
+                    if (accionPendiente.tipo === 'eliminar_vendedora') {
+                        db.collection('vendedoras').doc(accionPendiente.payload).delete();
+                    } else if (accionPendiente.tipo === 'eliminar_venta') {
+                        db.collection('ventas').doc(accionPendiente.payload).delete();
+                    } else if (accionPendiente.tipo === 'cierre_dia') {
+                        setModalCierreActivo(true);
+                    }
+                    setAccionPendiente(null);
+                    setAdminPassword('');
+                    setLoginError(false);
+                } else {
+                    setLoginError(true);
+                }
+            };
+
+            const procesarCierreDeCaja = () => {
+                const fechaCierre = new Date().toLocaleDateString();
+                ventasHistoricas.forEach(v => { 
+                    if(v.id_db) {
+                        db.collection('ventas').doc(v.id_db).update({ 
+                            estado: 'cerrado', 
+                            fechaCierre: fechaCierre,
+                            comisionEntregada: true 
+                        });
+                    }
+                });
+                setModalCierreActivo(false);
+            };
+
+            const totalOrden = ordenActual.reduce((total, item) => total + item.precio, 0);
+
+            // --- VISTA 0: PANTALLA DE LOGIN ---
+            if (!loggedInUser) {
+                return (
+                    <div className="login-screen" style={{justifyContent: 'center', paddingTop: 0}}>
+                        <div className="modal-content" style={{maxWidth: '450px', padding: '50px', textAlign: 'center', boxShadow: 'var(--hover-shadow)'}}>
+                            <h1 style={{fontSize: '2.5rem', marginBottom: '10px', color: 'var(--accent-orange)'}}>🍹 La Veci</h1>
+                            <p style={{color: 'var(--text-light)', marginBottom: '30px', fontSize: '1.1rem'}}>Ingresa tu PIN personal</p>
+                            
+                            <input 
+                                type="password" 
+                                placeholder="****" 
+                                value={loginInput}
+                                onChange={(e) => setLoginInput(e.target.value)}
+                                onKeyPress={(e) => e.key === 'Enter' && procesarLoginPrincipal()}
+                                style={{width: '100%', padding: '20px', borderRadius: '20px', border: '2px solid var(--border-color)', marginBottom: '20px', fontSize: '2rem', textAlign: 'center', background: 'var(--white)', letterSpacing: '5px'}}
+                                autoFocus
+                            />
+                            
+                            {loginErrorGeneral && <p style={{color: 'var(--danger)', marginBottom: '20px', fontWeight: '600'}}>PIN incorrecto o no registrado.</p>}
+                            
+                            <button className="btn-iniciar-venta" onClick={procesarLoginPrincipal} style={{padding: '20px', fontSize: '1.2rem'}}>
+                                Entrar al Sistema
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            // --- VISTA 1: DASHBOARD PRINCIPAL ---
+            if (!vendedoraActiva) {
+                const vendedorasVisibles = loggedInUser.role === 'admin' 
+                    ? vendedoras 
+                    : vendedoras.filter(v => v.nombre === loggedInUser.nombre);
+
+                return (
+                    <div className="login-screen">
+                        
+                        <div className="top-navbar">
+                            <button className="btn-volver" onClick={cerrarSesion} style={{background: 'var(--white)', padding: '12px 25px', boxShadow: 'var(--soft-shadow)', border: 'none'}}>
+                                🚪 Salir
+                            </button>
+
+                            {loggedInUser.role === 'admin' && (
+                                <div className="admin-menu-row">
+                                    <button className="btn-esquina" onClick={() => setModalPersonalActivo(true)}> 👥 Personal / PINs </button>
+                                    <button className="btn-esquina" onClick={() => setModalSaboresActivo(true)}> 🍎 Sabores </button>
+                                    <button className="btn-esquina" onClick={() => setModalMenuActivo(true)}> 📝 Menú y Precios </button>
+                                    <button className="btn-esquina" onClick={() => setModalGestorVentasActivo(true)}> 📊 Ventas Globales </button>
+                                </div>
+                            )}
+                        </div>
+
+                        {accionPendiente && (
+                            <div className="modal-overlay" style={{zIndex: 200}}>
+                                <div className="modal-content" style={{maxWidth: '400px', padding: '40px'}}>
+                                    <h3>Acción Protegida</h3>
+                                    <p style={{textAlign: 'center', color: 'var(--text-light)', marginBottom: '20px'}}>
+                                        Por seguridad, ingresa tu clave maestra (DANIELA).
+                                    </p>
+                                    <input 
+                                        type="password" placeholder="Clave Maestra" value={adminPassword} onChange={(e) => setAdminPassword(e.target.value)}
+                                        style={{width: '100%', padding: '20px', borderRadius: '20px', border: '1px solid var(--border-color)', marginBottom: '15px', fontSize: '1.2rem', textAlign: 'center', background: 'var(--white)'}}
+                                        autoFocus
+                                    />
+                                    {loginError && <p style={{color: 'var(--danger)', textAlign: 'center', marginBottom: '15px', fontWeight: '600'}}>Clave incorrecta</p>}
+                                    <button className="btn-iniciar-venta" onClick={ejecutarAccionSegura}>Confirmar</button>
+                                    <button className="btn-cancelar" style={{marginTop: '15px'}} onClick={() => {setAccionPendiente(null); setLoginError(false); setAdminPassword('');}}>Cancelar</button>
+                                </div>
+                            </div>
+                        )}
+
+                        {modalPersonalActivo && (
+                            <div className="modal-overlay">
+                                <div className="modal-content">
+                                    <h3>Equipo de Ventas</h3>
+                                    <p style={{textAlign: 'center', color: 'var(--text-light)', margin: '-20px 0 20px'}}>Agrega vendedoras y asígnales un PIN</p>
+                                    <div style={{display: 'flex', gap:'10px', marginBottom: '20px'}}>
+                                        <input id="nuevaVend" placeholder="Nombre" className="input-elegante" style={{flex: 2, marginBottom: 0}}/>
+                                        <input id="nuevoPin" type="number" placeholder="PIN (ej. 5678)" className="input-elegante" style={{flex: 1, marginBottom: 0}}/>
+                                        <button onClick={() => { 
+                                            const nombre = document.getElementById('nuevaVend').value.trim(); 
+                                            const pin = document.getElementById('nuevoPin').value.trim(); 
+                                            if(nombre && pin) { 
+                                                db.collection('vendedoras').doc(nombre).set({ nombre, pin, role: 'vendor' }); 
+                                                document.getElementById('nuevaVend').value=''; 
+                                                document.getElementById('nuevoPin').value=''; 
+                                            } else {
+                                                alert("Ingresa nombre y PIN");
+                                            }
+                                        }} className="btn-iniciar-venta" style={{padding: '10px 20px', width: 'auto'}}>Agregar</button>
+                                    </div>
+                                    <div className="lista-scroll" style={{maxHeight: '300px'}}>
+                                        {vendedoras.map(v => (
+                                            <div key={v.nombre} className="modal-item" style={{padding: '12px 20px'}}>
+                                                <div>
+                                                    <strong style={{fontSize: '1.1rem'}}>{v.nombre}</strong><br/>
+                                                    <span style={{fontSize: '0.85rem', color: 'var(--text-light)'}}>PIN: {v.pin}</span>
+                                                </div>
+                                                <div style={{display: 'flex', gap: '8px'}}>
+                                                    <button onClick={() => setModalEditarPinActivo(v.nombre)} className="btn-accion-mini" style={{width: '35px', height: '35px', padding: 0}}>✏️</button>
+                                                    {v.nombre !== 'DANIELA' && (
+                                                        <button onClick={()=> solicitarClave({tipo: 'eliminar_vendedora', payload: v.nombre})} className="btn-eliminar" style={{width: '35px', height: '35px'}}>🗑️</button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <button className="btn-cancelar" onClick={() => setModalPersonalActivo(false)}>Cerrar</button>
+                                </div>
+                            </div>
+                        )}
+
+                        {modalEditarPinActivo && (
+                            <div className="modal-overlay" style={{zIndex: 150}}>
+                                <div className="modal-content" style={{maxWidth: '400px'}}>
+                                    <h3>Cambiar PIN de {modalEditarPinActivo}</h3>
+                                    <input id="editPinInput" type="number" placeholder="Nuevo PIN" className="input-elegante" autoFocus/>
+                                    <button onClick={() => {
+                                        const nuevoPin = document.getElementById('editPinInput').value.trim();
+                                        if(nuevoPin) {
+                                            db.collection('vendedoras').doc(modalEditarPinActivo).update({ pin: nuevoPin });
+                                            setModalEditarPinActivo(null);
+                                        }
+                                    }} className="btn-iniciar-venta">Guardar PIN</button>
+                                    <button className="btn-cancelar" onClick={() => setModalEditarPinActivo(null)}>Cancelar</button>
+                                </div>
+                            </div>
+                        )}
+
+                        {modalSaboresActivo && (
+                            <div className="modal-overlay">
+                                <div className="modal-content">
+                                    <h3>Gestión de Sabores</h3>
+                                    <p style={{textAlign: 'center', color: 'var(--text-light)', margin: '-20px 0 20px'}}>Agrega las frutas disponibles hoy</p>
+                                    <div style={{display: 'flex', gap:'10px', marginBottom: '20px'}}>
+                                        <input id="nuevoSabor" placeholder="Ej. Fresa" className="input-elegante" style={{marginBottom: 0}}/>
+                                        <button onClick={() => { 
+                                            const val = document.getElementById('nuevoSabor').value.trim(); 
+                                            if(val && !sabores.includes(val)) { 
+                                                const nuevosSabores = [...sabores, val];
+                                                db.collection('configuracion').doc('sabores').update({ items: nuevosSabores });
+                                                document.getElementById('nuevoSabor').value=''; 
+                                            }
+                                        }} className="btn-iniciar-venta" style={{padding: '10px 20px', width: 'auto'}}>Add</button>
+                                    </div>
+                                    <div className="lista-scroll" style={{maxHeight: '300px'}}>
+                                        {sabores.map((s, index) => (
+                                            <div key={index} className="modal-item" style={{padding: '12px 20px'}}>
+                                                <strong style={{fontSize: '1.1rem'}}>{s}</strong>
+                                                <button onClick={()=>{
+                                                    const nuevosSabores = sabores.filter(item => item !== s);
+                                                    db.collection('configuracion').doc('sabores').update({ items: nuevosSabores });
+                                                }} className="btn-eliminar" style={{width: '35px', height: '35px'}}>🗑️</button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <button className="btn-cancelar" onClick={() => setModalSaboresActivo(false)}>Cerrar</button>
+                                </div>
+                            </div>
+                        )}
+
+                        {modalMenuActivo && (
+                            <div className="modal-overlay">
+                                <div className="modal-content" style={{maxWidth: '700px'}}>
+                                    <h3>Menú y Precios</h3>
+                                    <div style={{background: 'var(--white)', padding: '20px', borderRadius: '20px', border: '1px solid var(--border-color)', marginBottom: '20px'}}>
+                                        <h4 style={{marginBottom: '15px'}}>Agregar Nuevo Producto</h4>
+                                        <div style={{display: 'flex', gap:'10px', marginBottom: '15px'}}>
+                                            <input id="mCat" placeholder="Categoría (Ej. Vaso Plástico)" className="input-elegante" style={{flex: 2, marginBottom: 0}}/>
+                                            <input id="mPrecio" type="number" step="0.25" placeholder="Precio (Ej. 1.50)" className="input-elegante" style={{flex: 1, marginBottom: 0}}/>
+                                        </div>
+                                        <div style={{display: 'flex', gap: '20px', marginBottom: '15px', justifyContent: 'center'}}>
+                                            <label className="checkbox-label"><input id="mSabor" type="checkbox"/> ¿Exige elegir sabor?</label>
+                                            <label className="checkbox-label"><input id="mRetorno" type="checkbox"/> ¿Devuelve envase?</label>
+                                        </div>
+                                        <button onClick={() => { 
+                                            const cat = document.getElementById('mCat').value.trim(); 
+                                            const precio = parseFloat(document.getElementById('mPrecio').value);
+                                            const reqSabor = document.getElementById('mSabor').checked;
+                                            const reqRetorno = document.getElementById('mRetorno').checked;
+                                            
+                                            if(cat && !isNaN(precio)) { 
+                                                const nuevoMenu = [...menu, { id: Date.now(), categoria: cat, precio: precio, requiereSabor: reqSabor, requiereRetorno: reqRetorno }];
+                                                db.collection('configuracion').doc('menu_final').update({ items: nuevoMenu });
+                                                document.getElementById('mCat').value=''; document.getElementById('mPrecio').value='';
+                                            } else { alert("Completa Categoría y Precio"); }
+                                        }} className="btn-iniciar-venta" style={{width: '100%', padding: '15px'}}>Guardar Producto</button>
+                                    </div>
+
+                                    <div className="lista-scroll" style={{maxHeight: '300px'}}>
+                                        {menu.map((m) => (
+                                            <div key={m.id} className="modal-item" style={{padding: '12px 20px'}}>
+                                                <div>
+                                                    <strong style={{fontSize: '1.1rem'}}>{m.categoria} - ${m.precio.toFixed(2)}</strong><br/>
+                                                    <span style={{fontSize: '0.85rem', color: 'var(--text-light)'}}>
+                                                        {m.requiereSabor ? 'Con Sabor' : 'Sin Sabor'} | {m.requiereRetorno ? 'Envase Retornable' : 'Envase Descartable'}
+                                                    </span>
+                                                </div>
+                                                <button onClick={()=>{
+                                                    const nuevoMenu = menu.filter(item => item.id !== m.id);
+                                                    db.collection('configuracion').doc('menu_final').update({ items: nuevoMenu });
+                                                }} className="btn-eliminar" style={{width: '35px', height: '35px'}}>🗑️</button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <button className="btn-cancelar" onClick={() => setModalMenuActivo(false)}>Cerrar</button>
+                                </div>
+                            </div>
+                        )}
+
+                        {modalGestorVentasActivo && (
+                            <div className="modal-overlay">
+                                <div className="modal-content" style={{maxWidth: '700px'}}>
+                                    <h3>Gestión de Ventas Global</h3>
+                                    <p style={{textAlign: 'center', color: 'var(--text-light)', margin: '-20px 0 20px'}}>Historial activo y cierre de caja</p>
+                                    <div className="lista-scroll" style={{maxHeight: '400px', marginBottom: '20px'}}>
+                                        {vendedoras.map(vObj => {
+                                            const v = vObj.nombre;
+                                            const ventasVendedora = ventasHistoricas.filter(x => x.vendedora === v);
+                                            if (ventasVendedora.length === 0) return null;
+                                            return (
+                                                <div key={v} style={{marginBottom: '15px'}}>
+                                                    <div style={{background: 'var(--bg-crema)', padding: '12px 20px', borderRadius: '15px', fontWeight: 'bold', marginBottom: '8px', textAlign: 'left', border: '1px solid var(--border-color)'}}>
+                                                        Ventas de {v}
+                                                    </div>
+                                                    {ventasVendedora.map(venta => (
+                                                        <div key={venta.id_venta} className="modal-item" style={{padding: '12px 20px', gap: '10px', marginBottom: '8px'}}>
+                                                            <div style={{fontSize: '0.95rem', textAlign: 'left'}}>
+                                                                <strong>{venta.categoria} ({venta.sabor})</strong><br/>
+                                                                <span style={{color: 'var(--text-light)'}}>{venta.hora} • ${venta.precio.toFixed(2)} {venta.pagado ? '' : '(Debe)'}</span>
+                                                            </div>
+                                                            <button onClick={()=> solicitarClave({tipo: 'eliminar_venta', payload: venta.id_db})} className="btn-eliminar" style={{width: '35px', height: '35px', fontSize: '1.1rem'}}>🗑️</button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )
+                                        })}
+                                        {ventasHistoricas.length === 0 && <p style={{color: 'var(--text-light)', padding: '20px', textAlign: 'center', fontSize: '1.1rem'}}>No hay ventas activas en este turno.</p>}
+                                    </div>
+                                    <button className="btn-iniciar-venta" style={{width: '100%', background: 'var(--text-dark)'}} onClick={() => { setModalGestorVentasActivo(false); solicitarClave({tipo: 'cierre_dia'}); }}>
+                                        Realizar Cierre de Día
+                                    </button>
+                                    <button className="btn-cancelar" onClick={() => setModalGestorVentasActivo(false)}>Volver</button>
+                                </div>
+                            </div>
+                        )}
+
+                        {modalCierreActivo && (
+                            <div className="modal-overlay">
+                                <div className="modal-content">
+                                    <h3>Cierre de Día</h3>
+                                    <p style={{textAlign: 'center', color: 'var(--text-light)', margin: '-20px 0 20px'}}>El dinero de comisiones se marca como entregado y las ventas se guardan en el historial general de la nube.</p>
+                                    <div className="lista-scroll">
+                                        {vendedoras.map(vObj => {
+                                            const v = vObj.nombre;
+                                            const facturado = ventasHistoricas.filter(x => x.vendedora === v && x.pagado).reduce((s, x) => s + x.precio, 0);
+                                            if(facturado === 0) return null;
+                                            
+                                            const comision = facturado * 0.3;
+                                            return (
+                                                <div key={v} className="modal-item" style={{flexDirection: 'column', alignItems: 'flex-start', gap: '8px'}}>
+                                                    <strong style={{fontSize: '1.2rem'}}>{v}</strong>
+                                                    <span>Total en Caja: <strong>${facturado.toFixed(2)}</strong></span>
+                                                    <span style={{color: 'var(--success)', fontWeight: 'bold'}}>Comisión generada: ${comision.toFixed(2)}</span>
+                                                    <div style={{background: '#FDFCF8', padding: '15px', borderRadius: '15px', width: '100%', fontSize: '1rem', color: 'var(--text-light)', border: '1px solid var(--border-color)', marginTop: '10px'}}>
+                                                        "Buen trabajo el día de hoy, {v}. Aquí está el pago de tu comisión."
+                                                    </div>
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                    <button className="btn-iniciar-venta" style={{marginTop: '20px'}} onClick={procesarCierreDeCaja}>
+                                        Guardar Cierre y Limpiar Pantalla
+                                    </button>
+                                    <button className="btn-cancelar" onClick={() => setModalCierreActivo(false)}>Cancelar</button>
+                                </div>
+                            </div>
+                        )}
+                        
+                        {modalHistorialActivo && (
+                            <div className="modal-overlay">
+                                <div className="modal-content">
+                                    <h3>Mis Ventas</h3>
+                                    <p style={{textAlign: 'center', color: 'var(--text-light)', margin: '-20px 0 25px'}}> Atendió: <strong>{modalHistorialActivo}</strong> </p>
+                                    <div className="lista-scroll">
+                                        {ventasHistoricas.filter(v => v.vendedora === modalHistorialActivo).length === 0 ? (
+                                            <div style={{textAlign: 'center', padding: '40px', color: 'var(--text-light)'}}> Aún no hay ventas registradas. </div>
+                                        ) : (
+                                            ventasHistoricas.filter(v => v.vendedora === modalHistorialActivo).map(venta => (
+                                                <div key={venta.id_venta} className="modal-item">
+                                                    <div>
+                                                        <div style={{fontWeight: '700'}}>{venta.categoria}</div>
+                                                        <div style={{color: 'var(--text-light)', fontSize: '0.85rem'}}>{venta.sabor} • {venta.hora} {venta.pagado ? '' : ' (Pendiente)'}</div>
+                                                    </div>
+                                                    <div style={{fontWeight: '700', fontSize: '1.2rem'}}>${venta.precio.toFixed(2)}</div>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                    <button className="btn-cancelar" onClick={() => setModalHistorialActivo(null)}>Cerrar</button>
+                                </div>
+                            </div>
+                        )}
+
+                        {modalRetornosActivo && (
+                            <div className="modal-overlay">
+                                <div className="modal-content" style={{maxWidth: '600px'}}>
+                                    <h3>Tareas Pendientes</h3>
+                                    <p style={{textAlign: 'center', color: 'var(--text-light)', margin: '-20px 0 25px'}}> Vendedora: <strong>{modalRetornosActivo}</strong> </p>
+                                    <div className="lista-scroll">
+                                        {pendientes.filter(r => r.vendedora === modalRetornosActivo).length === 0 ? (
+                                            <div style={{textAlign: 'center', padding: '40px', color: 'var(--text-light)'}}> Todo en orden. No hay deudas ni envases fuera. </div>
+                                        ) : (
+                                            pendientes.filter(r => r.vendedora === modalRetornosActivo).map(p => (
+                                                <div key={p.id_orden} className="modal-item" style={{flexDirection: 'column', alignItems: 'flex-start', gap: '15px'}}>
+                                                    <div style={{display: 'flex', justifyContent: 'space-between', width: '100%'}}>
+                                                        <div>
+                                                            <div style={{fontWeight: '700', fontSize: '1.1rem'}}>{p.items}</div>
+                                                            <div style={{color: 'var(--text-light)', fontSize: '0.9rem', marginTop: '4px'}}>Salió a las: {p.hora}</div>
+                                                        </div>
+                                                        <div style={{fontWeight: '700', fontSize: '1.3rem'}}>${p.total.toFixed(2)}</div>
+                                                    </div>
+                                                    <div style={{display: 'flex', gap: '10px', width: '100%'}}>
+                                                        {p.debeVaso && (
+                                                            <button className="btn-accion-mini" onClick={() => resolverPendiente(p.id_orden, 'vaso')}> 🥤 Vaso Devuelto </button>
+                                                        )}
+                                                        {p.debePago && (
+                                                            <button className="btn-accion-mini text-success" onClick={() => resolverPendiente(p.id_orden, 'pago')}> 💰 Pago Recibido </button>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                    <button className="btn-cancelar" onClick={() => setModalRetornosActivo(null)}>Cerrar</button>
+                                </div>
+                            </div>
+                        )}
+
+                        <div style={{textAlign: 'center', marginBottom: '20px', marginTop: '10px'}}>
+                            <h1 style={{fontSize: '3.5rem', marginBottom: '10px'}}>Hola, {loggedInUser.nombre}</h1>
+                            <p style={{color: 'var(--text-light)', fontSize: '1.1rem'}}>Tu resumen de turno actual</p>
+                        </div>
+                        
+                        <div className="vendedoras-container">
+                            {vendedorasVisibles.map(vObj => {
+                                const nombre = vObj.nombre;
+                                const ventasHoy = ventasHistoricas.filter(v => v.vendedora === nombre && v.pagado).reduce((t, v) => t + v.precio, 0);
+                                const comision = ventasHoy * 0.30;
+                                
+                                const pends = pendientes.filter(r => r.vendedora === nombre);
+                                const totalAlertas = pends.filter(p => p.debeVaso || p.debePago).length;
+
+                                return (
+                                    <div key={nombre} className="card-vendedora">
+                                        <h2>{nombre}</h2>
+                                        
+                                        <div className="stats-box">
+                                            <div className="stats-label">Caja Actual<br/><span style={{fontSize:'0.8rem'}}>Dinero en mano</span></div>
+                                            <div className="stats-val">${ventasHoy.toFixed(2)}</div>
+                                        </div>
+
+                                        <div className="stats-box">
+                                            <div className="stats-label">Comisión<br/><span style={{fontSize:'0.8rem'}}>30% ganancia</span></div>
+                                            <div className="stats-val" style={{color: 'var(--success)'}}>${comision.toFixed(2)}</div>
+                                        </div>
+
+                                        <div className="acciones-card">
+                                            <button className="btn-iniciar-venta" onClick={() => setVendedoraActiva(nombre)}> Abrir Terminal de Venta </button>
+                                            <button className="btn-secundario-dash" onClick={() => setModalHistorialActivo(nombre)}> Ver Mi Historial </button>
+                                            
+                                            {totalAlertas > 0 && (
+                                                <button className="btn-secundario-dash btn-alerta" onClick={() => setModalRetornosActivo(nombre)}>
+                                                    ⚠️ {totalAlertas} Tareas pendientes
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </div>
+                );
+            }
+
+            // --- VISTA 2: TERMINAL DE VENTA POS ---
+            
+            const menuAgrupado = agruparMenuPorCategoria();
+
+            return (
+                <div className="pos-layout">
+                    {productoPendiente && (
+                        <div className="modal-overlay">
+                            <div className="modal-content" style={{maxWidth: '500px'}}>
+                                <h3>¿Sabor de {productoPendiente.categoria}?</h3>
+                                <div className="grid-sabores">
+                                    {sabores.map(sabor => (
+                                        <button key={sabor} className="btn-sabor" onClick={() => agregarAlCarrito(productoPendiente, sabor)}> {sabor} </button>
+                                    ))}
+                                </div>
+                                <button className="btn-cancelar" onClick={() => setProductoPendiente(null)}>Cancelar</button>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="catalogo-panel">
+                        <div className="header-top">
+                            <h1>Terminal de Venta</h1>
+                            <button className="btn-volver" onClick={() => { setVendedoraActiva(null); setOrdenActual([]); }}> Volver al Inicio </button>
+                        </div>
+                        
+                        {Object.keys(menuAgrupado).map(cat => (
+                            <div key={cat}>
+                                <div className="categoria-titulo">{cat}</div>
+                                <div className="grid-productos">
+                                    {menuAgrupado[cat].map(p => (
+                                        <button key={p.id} className="btn-producto" onClick={() => manejarClickProducto(p)}>
+                                            <span className="prod-precio">${parseFloat(p.precio).toFixed(2)}</span>
+                                            <span className="prod-nombre">{p.requiereSabor ? 'Elegir sabor' : 'Directo'}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="ticket-panel">
+                        <div className="ticket-header">
+                            <h2>Orden Actual</h2>
+                            <div className="ticket-vendedora">Atendiendo: {vendedoraActiva}</div>
+                        </div>
+                        <div className="ticket-body">
+                            {ordenActual.length === 0 ? (
+                                <div style={{textAlign: 'center', color: 'var(--text-light)', marginTop: '50px'}}> Selecciona productos del catálogo </div>
+                            ) : (
+                                ordenActual.map(item => (
+                                    <div key={item.id_carrito} className="ticket-item">
+                                        <div className="item-info">
+                                            <div className="item-titulo">{item.categoria}</div>
+                                            <div className="item-sabor">{item.sabor}</div>
+                                        </div>
+                                        <div className="item-precio">${item.precio.toFixed(2)}</div>
+                                        <button className="btn-eliminar" onClick={() => eliminarDelCarrito(item.id_carrito)}>×</button>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                        <div className="ticket-footer">
+                            <div className="total-row">
+                                <span className="total-label">Total</span>
+                                <span className="total-monto">${totalOrden.toFixed(2)}</span>
+                            </div>
+                            <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+                                <button className="btn-cobrar" style={{background: 'var(--accent-orange)'}} disabled={ordenActual.length === 0} onClick={() => cobrarOrden(true, true)}>
+                                    🍹 Tomar en Barra (Pagado)
+                                </button>
+                                
+                                <div style={{display: 'flex', gap: '10px'}}>
+                                    <button className="btn-cobrar btn-pendiente" style={{fontSize: '1rem', padding: '15px 5px'}} disabled={ordenActual.length === 0} onClick={() => cobrarOrden(false, false)}> 
+                                        A Mesa (Debe) 
+                                    </button>
+                                    <button className="btn-cobrar" style={{fontSize: '1rem', padding: '15px 5px'}} disabled={ordenActual.length === 0} onClick={() => cobrarOrden(true, false)}> 
+                                        A Mesa (Pagado) 
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<AppJugosPOS />);
+    </script>
+</body>
+</html>
