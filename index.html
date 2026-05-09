@@ -42,12 +42,12 @@
         .categoria-titulo { font-size: 1rem; color: var(--text-light); margin: 20px 0 15px 0; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; }
         .grid-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; margin-bottom: 30px;}
 
+        /* Ya no hay badge de retorno, el botón es completamente limpio */
         .btn-producto { background: var(--white); border: 1px solid var(--border-color); border-radius: 20px; padding: 25px 15px; text-align: center; cursor: pointer; transition: all 0.2s ease; box-shadow: var(--soft-shadow); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; height: 110px; position: relative;}
         .btn-producto:hover { transform: translateY(-4px); border-color: var(--text-dark); box-shadow: var(--hover-shadow); }
         .btn-producto:active { transform: scale(0.96); }
         .prod-precio { font-size: 1.5rem; font-weight: 700; color: var(--text-dark); }
         .prod-nombre { font-size: 0.9rem; color: var(--text-light); font-weight: 500; }
-        .badge-retorno { position: absolute; top: 10px; right: 10px; font-size: 0.6rem; background: #FFF0F0; color: var(--danger); padding: 3px 6px; border-radius: 6px; font-weight: 700; }
 
         .ticket-panel { width: 400px; background: var(--white); border-left: 1px solid var(--border-color); display: flex; flex-direction: column; box-shadow: -10px 0 30px rgba(0,0,0,0.02); z-index: 10; }
         .ticket-header { padding: 35px 30px 25px; border-bottom: 1px solid var(--border-color); text-align: center; }
@@ -95,7 +95,7 @@
 
         .login-screen { height: 100vh; display: flex; flex-direction: column; align-items: center; background: var(--bg-crema); overflow-y: auto; position: relative;}
         
-        /* NUEVA BARRA DE NAVEGACIÓN SUPERIOR */
+        /* BARRA SUPERIOR */
         .top-navbar { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 30px 40px 10px 40px; }
         .admin-menu-row { display: flex; flex-direction: row; gap: 12px; flex-wrap: wrap; justify-content: flex-end; }
         
@@ -131,7 +131,6 @@
             .login-screen { padding: 0; }
             .login-screen h1 { font-size: 2.2rem; }
             
-            /* Ajustes Barra Superior para Celular */
             .top-navbar { flex-direction: column; gap: 15px; padding: 20px; align-items: center; }
             .admin-menu-row { justify-content: center; }
             
@@ -169,23 +168,29 @@
         // 2. APLICACIÓN REACT
         const { useState, useEffect } = React;
 
-        // --- DATOS POR DEFECTO PARA LA PRIMERA VEZ ---
+        // LISTA COMPLETA DE MENÚ (13 Items)
         const defaultSabores = ['Mora', 'Tomate', 'Guanábana', 'Naranja', 'Alfalfa', 'Limonada'];
         const defaultMenu = [
             { id: 1, categoria: 'Vaso Plástico', precio: 0.50, requiereSabor: true, requiereRetorno: false },
             { id: 2, categoria: 'Vaso Plástico', precio: 0.75, requiereSabor: true, requiereRetorno: false },
-            { id: 3, categoria: 'Vaso Vidrio', precio: 1.00, requiereSabor: true, requiereRetorno: true },
-            { id: 4, categoria: 'Jarra', precio: 2.00, requiereSabor: true, requiereRetorno: true },
-            { id: 5, categoria: 'Preparado', precio: 2.00, requiereSabor: false, requiereRetorno: false }
+            { id: 3, categoria: 'Vaso Plástico', precio: 1.00, requiereSabor: true, requiereRetorno: false },
+            { id: 4, categoria: 'Vaso Plástico', precio: 1.50, requiereSabor: true, requiereRetorno: false },
+            { id: 5, categoria: 'Vaso Vidrio', precio: 0.50, requiereSabor: true, requiereRetorno: true },
+            { id: 6, categoria: 'Vaso Vidrio', precio: 0.75, requiereSabor: true, requiereRetorno: true },
+            { id: 7, categoria: 'Vaso Vidrio', precio: 1.00, requiereSabor: true, requiereRetorno: true },
+            { id: 8, categoria: 'Vaso Vidrio', precio: 1.50, requiereSabor: true, requiereRetorno: true },
+            { id: 9, categoria: 'Jarra', precio: 2.00, requiereSabor: true, requiereRetorno: true },
+            { id: 10, categoria: 'Jarra', precio: 3.00, requiereSabor: true, requiereRetorno: true },
+            { id: 11, categoria: 'Jarra', precio: 5.00, requiereSabor: true, requiereRetorno: true },
+            { id: 12, categoria: 'Preparado', precio: 2.00, requiereSabor: false, requiereRetorno: false },
+            { id: 13, categoria: 'Preparado', precio: 3.00, requiereSabor: false, requiereRetorno: false }
         ];
 
         const AppJugosPOS = () => {
-            // SISTEMA DE USUARIOS
             const [loggedInUser, setLoggedInUser] = useState(null); 
             const [loginInput, setLoginInput] = useState('');
             const [loginErrorGeneral, setLoginErrorGeneral] = useState(false);
 
-            // DATOS DE FIREBASE
             const [vendedoras, setVendedoras] = useState([]);
             const [ventasHistoricas, setVentasHistoricas] = useState([]);
             const [pendientes, setPendientes] = useState([]); 
@@ -195,7 +200,6 @@
             const [vendedoraActiva, setVendedoraActiva] = useState(null);
             const [ordenActual, setOrdenActual] = useState([]);
             
-            // MODALES
             const [accionPendiente, setAccionPendiente] = useState(null); 
             const [adminPassword, setAdminPassword] = useState('');
             const [loginError, setLoginError] = useState(false);
@@ -207,13 +211,11 @@
             const [modalPersonalActivo, setModalPersonalActivo] = useState(false);
             const [modalGestorVentasActivo, setModalGestorVentasActivo] = useState(false);
             
-            // NUEVOS MODALES DE CONFIGURACIÓN
             const [modalEditarPinActivo, setModalEditarPinActivo] = useState(null);
             const [modalSaboresActivo, setModalSaboresActivo] = useState(false);
             const [modalMenuActivo, setModalMenuActivo] = useState(false);
 
             useEffect(() => {
-                // Vendedoras y asegurar que Daniela exista
                 const unsubVendedoras = db.collection('vendedoras').onSnapshot(snap => {
                     const arr = [];
                     snap.forEach(doc => arr.push({ id: doc.id, ...doc.data() }));
@@ -240,21 +242,20 @@
                     setPendientes(arr);
                 });
 
-                // Cargar Configuración (Sabores y Menú)
                 const unsubSabores = db.collection('configuracion').doc('sabores').onSnapshot(doc => {
                     if(doc.exists) setSabores(doc.data().items);
                     else db.collection('configuracion').doc('sabores').set({items: defaultSabores});
                 });
 
-                const unsubMenu = db.collection('configuracion').doc('menu').onSnapshot(doc => {
+                // Cambié el ID del documento a 'menu_final' para forzar que cargue la lista completa
+                const unsubMenu = db.collection('configuracion').doc('menu_final').onSnapshot(doc => {
                     if(doc.exists) setMenu(doc.data().items);
-                    else db.collection('configuracion').doc('menu').set({items: defaultMenu});
+                    else db.collection('configuracion').doc('menu_final').set({items: defaultMenu});
                 });
 
                 return () => { unsubVendedoras(); unsubVentas(); unsubPendientes(); unsubSabores(); unsubMenu(); }
             }, []);
 
-            // FUNCIÓN DE INGRESO (LOGIN)
             const procesarLoginPrincipal = () => {
                 const vendedoraEncontrada = vendedoras.find(v => v.pin === loginInput);
                 
@@ -354,7 +355,6 @@
                 }
             };
 
-            // ADMINISTRACIÓN
             const solicitarClave = (accion) => {
                 setAccionPendiente(accion);
                 setAdminPassword('');
@@ -424,9 +424,8 @@
                 );
             }
 
-            // --- VISTA 1: DASHBOARD PRINCIPAL (DEPENDE DEL ROL) ---
+            // --- VISTA 1: DASHBOARD PRINCIPAL ---
             if (!vendedoraActiva) {
-                
                 const vendedorasVisibles = loggedInUser.role === 'admin' 
                     ? vendedoras 
                     : vendedoras.filter(v => v.nombre === loggedInUser.nombre);
@@ -434,7 +433,6 @@
                 return (
                     <div className="login-screen">
                         
-                        {/* NUEVA BARRA DE NAVEGACIÓN SUPERIOR */}
                         <div className="top-navbar">
                             <button className="btn-volver" onClick={cerrarSesion} style={{background: 'var(--white)', padding: '12px 25px', boxShadow: 'var(--soft-shadow)', border: 'none'}}>
                                 🚪 Salir
@@ -450,7 +448,6 @@
                             )}
                         </div>
 
-                        {/* MODAL: VERIFICACIÓN DE SEGURIDAD (PIN para borrar) */}
                         {accionPendiente && (
                             <div className="modal-overlay" style={{zIndex: 200}}>
                                 <div className="modal-content" style={{maxWidth: '400px', padding: '40px'}}>
@@ -470,7 +467,6 @@
                             </div>
                         )}
 
-                        {/* MODAL: GESTIÓN DE PERSONAL Y PINS */}
                         {modalPersonalActivo && (
                             <div className="modal-overlay">
                                 <div className="modal-content">
@@ -512,7 +508,6 @@
                             </div>
                         )}
 
-                        {/* MODAL: CAMBIAR PIN (SUB-MODAL) */}
                         {modalEditarPinActivo && (
                             <div className="modal-overlay" style={{zIndex: 150}}>
                                 <div className="modal-content" style={{maxWidth: '400px'}}>
@@ -530,7 +525,6 @@
                             </div>
                         )}
 
-                        {/* MODAL: GESTIÓN DE SABORES */}
                         {modalSaboresActivo && (
                             <div className="modal-overlay">
                                 <div className="modal-content">
@@ -563,7 +557,6 @@
                             </div>
                         )}
 
-                        {/* MODAL: GESTIÓN DE MENÚ */}
                         {modalMenuActivo && (
                             <div className="modal-overlay">
                                 <div className="modal-content" style={{maxWidth: '700px'}}>
@@ -586,7 +579,7 @@
                                             
                                             if(cat && !isNaN(precio)) { 
                                                 const nuevoMenu = [...menu, { id: Date.now(), categoria: cat, precio: precio, requiereSabor: reqSabor, requiereRetorno: reqRetorno }];
-                                                db.collection('configuracion').doc('menu').update({ items: nuevoMenu });
+                                                db.collection('configuracion').doc('menu_final').update({ items: nuevoMenu });
                                                 document.getElementById('mCat').value=''; document.getElementById('mPrecio').value='';
                                             } else { alert("Completa Categoría y Precio"); }
                                         }} className="btn-iniciar-venta" style={{width: '100%', padding: '15px'}}>Guardar Producto</button>
@@ -603,7 +596,7 @@
                                                 </div>
                                                 <button onClick={()=>{
                                                     const nuevoMenu = menu.filter(item => item.id !== m.id);
-                                                    db.collection('configuracion').doc('menu').update({ items: nuevoMenu });
+                                                    db.collection('configuracion').doc('menu_final').update({ items: nuevoMenu });
                                                 }} className="btn-eliminar" style={{width: '35px', height: '35px'}}>🗑️</button>
                                             </div>
                                         ))}
@@ -613,7 +606,6 @@
                             </div>
                         )}
 
-                        {/* MODAL: GESTIÓN DE VENTAS GLOBAL */}
                         {modalGestorVentasActivo && (
                             <div className="modal-overlay">
                                 <div className="modal-content" style={{maxWidth: '700px'}}>
@@ -651,7 +643,6 @@
                             </div>
                         )}
 
-                        {/* MODAL: CIERRE DE CAJA */}
                         {modalCierreActivo && (
                             <div className="modal-overlay">
                                 <div className="modal-content">
@@ -684,7 +675,6 @@
                             </div>
                         )}
                         
-                        {/* MODAL: HISTORIAL DE VENTAS INDIVIDUAL */}
                         {modalHistorialActivo && (
                             <div className="modal-overlay">
                                 <div className="modal-content">
@@ -710,7 +700,6 @@
                             </div>
                         )}
 
-                        {/* MODAL: GESTIÓN DE RETORNOS Y PAGOS PENDIENTES */}
                         {modalRetornosActivo && (
                             <div className="modal-overlay">
                                 <div className="modal-content" style={{maxWidth: '600px'}}>
@@ -794,12 +783,10 @@
 
             // --- VISTA 2: TERMINAL DE VENTA POS ---
             
-            // Agrupar menú por categoría para mostrarlo bonito
             const menuAgrupado = agruparMenuPorCategoria();
 
             return (
                 <div className="pos-layout">
-                    {/* MODAL SABORES */}
                     {productoPendiente && (
                         <div className="modal-overlay">
                             <div className="modal-content" style={{maxWidth: '500px'}}>
@@ -814,7 +801,6 @@
                         </div>
                     )}
 
-                    {/* PANEL IZQUIERDO */}
                     <div className="catalogo-panel">
                         <div className="header-top">
                             <h1>Terminal de Venta</h1>
@@ -826,9 +812,8 @@
                                 <div className="categoria-titulo">{cat}</div>
                                 <div className="grid-productos">
                                     {menuAgrupado[cat].map(p => (
-                                        <button key={p.id} className="btn-producto" onClick={() => manejarClickProducto(p)} style={p.requiereRetorno ? {borderColor: '#FFE0E0'} : {}}>
-                                            {p.requiereRetorno && <div className="badge-retorno">RETORNO</div>}
-                                            <span className="prod-precio">${p.precio.toFixed(2)}</span>
+                                        <button key={p.id} className="btn-producto" onClick={() => manejarClickProducto(p)}>
+                                            <span className="prod-precio">${parseFloat(p.precio).toFixed(2)}</span>
                                             <span className="prod-nombre">{p.requiereSabor ? 'Elegir sabor' : 'Directo'}</span>
                                         </button>
                                     ))}
@@ -837,7 +822,6 @@
                         ))}
                     </div>
 
-                    {/* PANEL DERECHO: TICKET */}
                     <div className="ticket-panel">
                         <div className="ticket-header">
                             <h2>Orden Actual</h2>
@@ -850,7 +834,7 @@
                                 ordenActual.map(item => (
                                     <div key={item.id_carrito} className="ticket-item">
                                         <div className="item-info">
-                                            <div className="item-titulo">{item.categoria} {item.requiereRetorno ? '🔄' : ''}</div>
+                                            <div className="item-titulo">{item.categoria}</div>
                                             <div className="item-sabor">{item.sabor}</div>
                                         </div>
                                         <div className="item-precio">${item.precio.toFixed(2)}</div>
