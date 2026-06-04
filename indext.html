@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LingoCode B1 - Motor Relacional</title>
+    
+    <script>
+        window.onerror = function(msg, url, lineNo) {
+            document.documentElement.innerHTML = '<body style="padding:20px; font-family:sans-serif; background:#fee; color:#c00;"><h2>🚨 Error de Sistema:</h2><p>' + msg + ' (Línea: ' + lineNo + ')</p></body>';
+            return false;
+        };
+    </script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans">
+    
+    <div id="root">
+        <div style="padding: 40px; text-align: center;">
+            <h2 style="color: #2563eb; font-size: 24px; font-weight: bold;">Cargando Motor Relacional... ⏳</h2>
+        </div>
+    </div>
+
+    <script type="text/babel" data-presets="react">
+        const { useState, useEffect } = React;
+
+        const speakEnglish = (text) => {
+            if (!text) return;
+            const cleanText = text.replace(/_+/g, "blank").replace(/[()]/g, "");
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.85; 
+            window.speechSynthesis.speak(utterance);
+        };
+
+        // ==========================================
+        // 📦 1. LA CAJA GIGANTE DE PREGUNTAS
+        // ==========================================
+        const global_exercises_pool = [
+{"id": 1, "section_id": 1, "type": "fill", "question": "____ am a law student.", "correct_answer": "i", "hint": "Pronombre"},
+{"id": 2, "section_id": 1, "type": "fill", "question": "____ is my wife Daniela.", "correct_answer": "she", "hint": "Pronombre"},
+{"id": 3, "section_id": 1, "type": "fill", "question": "____ is raining in Otavalo.", "correct_answer": "it", "hint": "Clima"},
+{"id": 4, "section_id": 1, "type": "fill", "question": "____ play basketball.", "correct_answer": "they", "hint": "Pronombre plural"},
+{"id": 5, "section_id": 1, "type": "translate", "question": "Traduce: Él es abogado.", "correct_answer": "he is a lawyer", "hint": "Pronombre"},
+{"id": 6, "section_id": 1, "type": "translate", "question": "Traduce: Es importante.", "correct_answer": "it is important", "hint": "Sujeto neutro"},
+{"id": 7, "section_id": 1, "type": "fill", "question": "____ am a law student today.", "correct_answer": "i", "hint": "Pronombre"},
+{"id": 8, "section_id": 1, "type": "fill", "question": "____ is my wife Daniela today.", "correct_answer": "she", "hint": "Pronombre"},
+{"id": 9, "section_id": 1, "type": "fill", "question": "____ is raining in Otavalo today.", "correct_answer": "it", "hint": "Clima"},
+{"id": 10, "section_id": 1, "type": "fill", "question": "____ play basketball today.", "correct_answer": "they", "hint": "Pronombre plural"},
+{"id": 11, "section_id": 1, "type": "translate", "question": "Traduce: Él es abogado hoy.", "correct_answer": "he is a lawyer", "hint": "Pronombre"},
+{"id": 12, "section_id": 1, "type": "translate", "question": "Traduce: Es importante hoy.", "correct_answer": "it is important", "hint": "Sujeto neutro"},
+{"id": 13, "section_id": 1, "type": "fill", "question": "____ is very important to review.", "correct_answer": "it", "hint": "Sujeto neutro"},
+{"id": 14, "section_id": 1, "type": "translate", "question": "Traduce: Daniela es contadora y ella trabaja.", "correct_answer": "daniela is an accountant and she works", "hint": "Ella = she"},
+{"id": 15, "section_id": 1, "type": "fill", "question": "When the team plays, ____ win.", "correct_answer": "they", "hint": "Ellos = they"},
+{"id": 16, "section_id": 1, "type": "translate", "question": "Traduce: El examen es difícil.", "correct_answer": "the exam is difficult", "hint": "El examen"},
+{"id": 17, "section_id": 1, "type": "fill", "question": "Daniela and I live in Ecuador; ____ love it.", "correct_answer": "we", "hint": "Nosotros = we"},
+{"id": 18, "section_id": 1, "type": "translate", "question": "Traduce: Yo juego básquet.", "correct_answer": "i play basketball", "hint": "Yo = i"},
+{"id": 19, "section_id": 1, "type": "fill", "question": "The portfolio is big; ____ has thirty accounts.", "correct_answer": "it", "hint": "Objeto singular"},
+{"id": 20, "section_id": 1, "type": "fill", "question": "David is a law student; ____ studies at night.", "correct_answer": "he", "hint": "Él = he"},
+{"id": 21, "section_id": 1, "type": "translate", "question": "Traduce: Es necesario pasar el examen.", "correct_answer": "it is necessary to pass the exam", "hint": "It is"},
+{"id": 22, "section_id": 1, "type": "fill", "question": "____ is cold in Quito.", "correct_answer": "it", "hint": "Temperatura"},
+{"id": 23, "section_id": 1, "type": "fill", "question": "My university is in Otavalo; ____ is a great place.", "correct_answer": "it", "hint": "Universidad = it"},
+{"id": 24, "section_id": 1, "type": "translate", "question": "Traduce: Ellos practican en el gimnasio.", "correct_answer": "they practice in the gym", "hint": "Ellos = they"},
+{"id": 25, "section_id": 1, "type": "fill", "question": "Daniela balances books because ____ is professional.", "correct_answer": "she", "hint": "Ella = she"},
+{"id": 26, "section_id": 1, "type": "translate", "question": "Traduce: El derecho es mi pasión.", "correct_answer": "law is my passion", "hint": "Derecho = law"},
+{"id": 27, "section_id": 1, "type": "fill", "question": "____ am tired today.", "correct_answer": "i", "hint": "Pronombre"},
+{"id": 28, "section_id": 1, "type": "fill", "question": "____ are good friends.", "correct_answer": "they", "hint": "Pronombre plural"},
+{"id": 29, "section_id": 1, "type": "translate", "question": "Traduce: Nosotros somos estudiantes.", "correct_answer": "we are students", "hint": "Pronombre"},
+{"id": 30, "section_id": 1, "type": "fill", "question": "____ is a rainy day.", "correct_answer": "it", "hint": "Sujeto neutro"},
+{"id": 31, "section_id": 2, "type": "fill", "question": "I ____ a basketball player.", "correct_answer": "am", "hint": "To be"},
+{"id": 32, "section_id": 2, "type": "fill", "question": "We ____ in Quito.", "correct_answer": "are", "hint": "To be plural"},
+{"id": 33, "section_id": 2, "type": "fill", "question": "It ____ a difficult exam.", "correct_answer": "is", "hint": "To be singular"},
+{"id": 34, "section_id": 2, "type": "translate", "question": "Traduce: Yo soy estudiante.", "correct_answer": "i am a student", "hint": "To be"},
+{"id": 35, "section_id": 2, "type": "translate", "question": "Traduce: Ellos están listos.", "correct_answer": "they are ready", "hint": "To be plural"},
+{"id": 36, "section_id": 2, "type": "fill", "question": "I ____ a basketball player today.", "correct_answer": "am", "hint": "To be"},
+{"id": 37, "section_id": 2, "type": "fill", "question": "We ____ in Quito today.", "correct_answer": "are", "hint": "To be plural"},
+{"id": 38, "section_id": 2, "type": "fill", "question": "It ____ a difficult exam today.", "correct_answer": "is", "hint": "To be singular"},
+{"id": 39, "section_id": 2, "type": "translate", "question": "Traduce: Yo soy estudiante hoy.", "correct_answer": "i am a student today", "hint": "To be"},
+{"id": 40, "section_id": 2, "type": "translate", "question": "Traduce: Ellos están listos hoy.", "correct_answer": "they are ready today", "hint": "To be plural"},
+{"id": 41, "section_id": 2, "type": "fill", "question": "I ____ a law student at Universidad.", "correct_answer": "am", "hint": "To be"},
+{"id": 42, "section_id": 2, "type": "translate", "question": "Traduce: Daniela es una contadora.", "correct_answer": "daniela is an accountant", "hint": "Vocal = an"},
+{"id": 43, "section_id": 2, "type": "fill", "question": "We ____ ready for the game.", "correct_answer": "are", "hint": "To be plural"},
+{"id": 44, "section_id": 2, "type": "fill", "question": "My career ____ important.", "correct_answer": "is", "hint": "To be singular"},
+{"id": 45, "section_id": 2, "type": "translate", "question": "Traduce: Yo soy un abogado.", "correct_answer": "i am a lawyer", "hint": "Consonante = a"},
+{"id": 46, "section_id": 2, "type": "fill", "question": "They ____ checking the files.", "correct_answer": "are", "hint": "To be plural"},
+{"id": 47, "section_id": 2, "type": "fill", "question": "You ____ a high-performance athlete.", "correct_answer": "are", "hint": "To be plural"},
+{"id": 48, "section_id": 2, "type": "translate", "question": "Traduce: El examen es el viernes.", "correct_answer": "the exam is on friday", "hint": "Es = is"},
+{"id": 49, "section_id": 2, "type": "fill", "question": "Daniela ____ busy with the portfolio.", "correct_answer": "is", "hint": "To be singular"},
+{"id": 50, "section_id": 2, "type": "translate", "question": "Traduce: Nosotros somos un equipo.", "correct_answer": "we are a team", "hint": "We are"},
+{"id": 51, "section_id": 2, "type": "fill", "question": "It ____ a crucial requirement.", "correct_answer": "is", "hint": "To be singular"},
+{"id": 52, "section_id": 2, "type": "translate", "question": "Traduce: Yo soy un jugador de básquetbol.", "correct_answer": "i am a basketball player", "hint": "I am a"},
+{"id": 53, "section_id": 2, "type": "fill", "question": "The documents ____ on the desk.", "correct_answer": "are", "hint": "Plural = are"},
+{"id": 54, "section_id": 2, "type": "translate", "question": "Traduce: Otavalo es una ciudad hermosa.", "correct_answer": "otavalo is a beautiful city", "hint": "Es = is"},
+{"id": 55, "section_id": 2, "type": "fill", "question": "I ____ determined to pass.", "correct_answer": "am", "hint": "To be"},
+{"id": 56, "section_id": 2, "type": "fill", "question": "She ____ tired today.", "correct_answer": "is", "hint": "To be singular"},
+{"id": 57, "section_id": 2, "type": "translate", "question": "Traduce: Él es mi amigo.", "correct_answer": "he is my friend", "hint": "He is"},
+{"id": 58, "section_id": 2, "type": "fill", "question": "We ____ happy.", "correct_answer": "are", "hint": "To be plural"},
+{"id": 59, "section_id": 2, "type": "translate", "question": "Traduce: Ellas son estudiantes.", "correct_answer": "they are students", "hint": "They are"},
+{"id": 60, "section_id": 2, "type": "fill", "question": "You ____ late today.", "correct_answer": "are", "hint": "To be plural"},
+{"id": 61, "section_id": 3, "type": "fill", "question": "She ____ the credit portfolios.", "correct_answer": "reviews", "hint": "Tercera persona"},
+{"id": 62, "section_id": 3, "type": "fill", "question": "I ____ to music.", "correct_answer": "listen", "hint": "Listen"},
+{"id": 63, "section_id": 3, "type": "fill", "question": "David ____ basketball.", "correct_answer": "plays", "hint": "Tercera persona"},
+{"id": 64, "section_id": 3, "type": "translate", "question": "Traduce: Yo trabajo todos los días.", "correct_answer": "i work every day", "hint": "Presente"},
+{"id": 65, "section_id": 3, "type": "translate", "question": "Traduce: Nosotros estudiamos derecho.", "correct_answer": "we study law", "hint": "Presente plural"},
+{"id": 66, "section_id": 3, "type": "fill", "question": "She ____ the credit portfolios today.", "correct_answer": "reviews", "hint": "Tercera persona"},
+{"id": 67, "section_id": 3, "type": "fill", "question": "I ____ to music today.", "correct_answer": "listen", "hint": "Listen"},
+{"id": 68, "section_id": 3, "type": "fill", "question": "David ____ basketball today.", "correct_answer": "plays", "hint": "Tercera persona"},
+{"id": 69, "section_id": 3, "type": "translate", "question": "Traduce: Yo trabajo todos los días hoy.", "correct_answer": "i work every day today", "hint": "Presente"},
+{"id": 70, "section_id": 3, "type": "translate", "question": "Traduce: Nosotros estudiamos derecho hoy.", "correct_answer": "we study law today", "hint": "Presente plural"},
+{"id": 71, "section_id": 3, "type": "fill", "question": "David ____ basketball every morning.", "correct_answer": "plays", "hint": "Tercera persona"},
+{"id": 72, "section_id": 3, "type": "translate", "question": "Traduce: Yo estudio derecho.", "correct_answer": "i study law", "hint": "I study"},
+{"id": 73, "section_id": 3, "type": "fill", "question": "Daniela ____ the accounts.", "correct_answer": "reviews", "hint": "She = s"},
+{"id": 74, "section_id": 3, "type": "fill", "question": "I always listen ____ rain sounds.", "correct_answer": "to", "hint": "Listen to"},
+{"id": 75, "section_id": 3, "type": "translate", "question": "Traduce: Nosotros vivimos en Otavalo.", "correct_answer": "we live in otavalo", "hint": "We live"},
+{"id": 76, "section_id": 3, "type": "fill", "question": "The web application ____ the sequence.", "correct_answer": "manages", "hint": "It = s"},
+{"id": 77, "section_id": 3, "type": "translate", "question": "Traduce: Ella trabaja en la oficina.", "correct_answer": "she works in the office", "hint": "She works"},
+{"id": 78, "section_id": 3, "type": "fill", "question": "I ____ to rock music.", "correct_answer": "listen", "hint": "I listen"},
+{"id": 79, "section_id": 3, "type": "translate", "question": "Traduce: Mi esposa maneja los balances.", "correct_answer": "my wife manages the balances", "hint": "Wife = she = manages"},
+{"id": 80, "section_id": 3, "type": "fill", "question": "Athletes ____ high-performance training.", "correct_answer": "need", "hint": "Plural = base"},
+{"id": 81, "section_id": 3, "type": "fill", "question": "The judge ____ the actions carefully.", "correct_answer": "analyzes", "hint": "He/She = s"},
+{"id": 82, "section_id": 3, "type": "translate", "question": "Traduce: Yo tomo café por la mañana.", "correct_answer": "i drink coffee in the morning", "hint": "I drink"},
+{"id": 83, "section_id": 3, "type": "fill", "question": "We ____ hard to finish.", "correct_answer": "work", "hint": "We work"},
+{"id": 84, "section_id": 3, "type": "translate", "question": "Traduce: El examen requiere concentración.", "correct_answer": "the exam requires concentration", "hint": "It requires"},
+{"id": 85, "section_id": 3, "type": "fill", "question": "She ____ books to expand vocabulary.", "correct_answer": "reads", "hint": "She reads"},
+{"id": 86, "section_id": 3, "type": "translate", "question": "Traduce: Ella juega básquet.", "correct_answer": "she plays basketball", "hint": "She plays"},
+{"id": 87, "section_id": 3, "type": "fill", "question": "He ____ English every day.", "correct_answer": "studies", "hint": "Tercera persona de study"},
+{"id": 88, "section_id": 3, "type": "translate", "question": "Traduce: Nosotros leemos mucho.", "correct_answer": "we read a lot", "hint": "We read"},
+{"id": 89, "section_id": 3, "type": "fill", "question": "I ____ coffee.", "correct_answer": "drink", "hint": "Rutina"},
+{"id": 90, "section_id": 3, "type": "translate", "question": "Traduce: Ellos trabajan aquí.", "correct_answer": "they work here", "hint": "They work"},
+{"id": 91, "section_id": 4, "type": "fill", "question": "I live ____ Ecuador.", "correct_answer": "in", "hint": "País"},
+{"id": 92, "section_id": 4, "type": "fill", "question": "The meeting is ____ Monday.", "correct_answer": "on", "hint": "Día"},
+{"id": 93, "section_id": 4, "type": "fill", "question": "I wake up ____ 7 AM.", "correct_answer": "at", "hint": "Hora"},
+{"id": 94, "section_id": 4, "type": "translate", "question": "Traduce: Estudio en la noche.", "correct_answer": "i study at night", "hint": "Noche"},
+{"id": 95, "section_id": 4, "type": "translate", "question": "Traduce: El examen es en mayo.", "correct_answer": "the exam is in may", "hint": "Mes"},
+{"id": 96, "section_id": 4, "type": "fill", "question": "I live ____ Ecuador today.", "correct_answer": "in", "hint": "País"},
+{"id": 97, "section_id": 4, "type": "fill", "question": "The meeting is ____ Monday today.", "correct_answer": "on", "hint": "Día"},
+{"id": 98, "section_id": 4, "type": "fill", "question": "I wake up ____ 7 AM today.", "correct_answer": "at", "hint": "Hora"},
+{"id": 99, "section_id": 4, "type": "translate", "question": "Traduce: Estudio en la noche hoy.", "correct_answer": "i study at night today", "hint": "Noche"},
+{"id": 100, "section_id": 4, "type": "translate", "question": "Traduce: El examen es en mayo hoy.", "correct_answer": "the exam is in may today", "hint": "Mes"},
+{"id": 101, "section_id": 4, "type": "fill", "question": "I live ____ Otavalo.", "correct_answer": "in", "hint": "Ciudades"},
+{"id": 102, "section_id": 4, "type": "translate", "question": "Traduce: El examen es el sábado.", "correct_answer": "the exam is on saturday", "hint": "Días"},
+{"id": 103, "section_id": 4, "type": "fill", "question": "Submit the report ____ 9:00 AM.", "correct_answer": "at", "hint": "Horas"},
+{"id": 104, "section_id": 4, "type": "fill", "question": "I train plyometrics ____ the morning.", "correct_answer": "in", "hint": "Partes del día"},
+{"id": 105, "section_id": 4, "type": "translate", "question": "Traduce: Yo estudio en la tarde.", "correct_answer": "i study in the afternoon", "hint": "Tarde = in"},
+{"id": 106, "section_id": 4, "type": "fill", "question": "Our anniversary is ____ April.", "correct_answer": "in", "hint": "Meses"},
+{"id": 107, "section_id": 4, "type": "translate", "question": "Traduce: Los documentos están sobre la mesa.", "correct_answer": "the documents are on the table", "hint": "Superficie"},
+{"id": 108, "section_id": 4, "type": "fill", "question": "The tournament starts ____ June.", "correct_answer": "in", "hint": "Meses"},
+{"id": 109, "section_id": 4, "type": "fill", "question": "I meet my teammates ____ the gymnasium.", "correct_answer": "at", "hint": "Lugar específico"},
+{"id": 110, "section_id": 4, "type": "translate", "question": "Traduce: Ella trabaja los sábados.", "correct_answer": "she works on saturdays", "hint": "Días"},
+{"id": 111, "section_id": 4, "type": "fill", "question": "We review portfolios ____ the afternoon.", "correct_answer": "in", "hint": "Partes del día"},
+{"id": 112, "section_id": 4, "type": "translate", "question": "Traduce: Mi universidad está en Ecuador.", "correct_answer": "my university is in ecuador", "hint": "Países"},
+{"id": 113, "section_id": 4, "type": "fill", "question": "The judge arrived ____ noon.", "correct_answer": "at", "hint": "Mediodía = at"},
+{"id": 114, "section_id": 4, "type": "translate", "question": "Traduce: El partido es el domingo.", "correct_answer": "the game is on sunday", "hint": "Días"},
+{"id": 115, "section_id": 4, "type": "fill", "question": "I code ____ night.", "correct_answer": "at", "hint": "Noche = at"},
+{"id": 116, "section_id": 4, "type": "fill", "question": "I will see you ____ Monday.", "correct_answer": "on", "hint": "Días"},
+{"id": 117, "section_id": 4, "type": "translate", "question": "Traduce: Vivo en Quito.", "correct_answer": "i live in quito", "hint": "Ciudad = in"},
+{"id": 118, "section_id": 4, "type": "fill", "question": "The class is ____ 8 AM.", "correct_answer": "at", "hint": "Hora"},
+{"id": 119, "section_id": 4, "type": "translate", "question": "Traduce: Es en diciembre.", "correct_answer": "it is in december", "hint": "Mes = in"},
+{"id": 120, "section_id": 4, "type": "fill", "question": "The laptop is ____ the desk.", "correct_answer": "on", "hint": "Superficie"},
+{"id": 121, "section_id": 5, "type": "fill", "question": "I want ____ pass.", "correct_answer": "to", "hint": "Puente"},
+{"id": 122, "section_id": 5, "type": "fill", "question": "I need to ____ ready.", "correct_answer": "be", "hint": "Estar"},
+{"id": 123, "section_id": 5, "type": "fill", "question": "She has ____ work.", "correct_answer": "to", "hint": "Tener que"},
+{"id": 124, "section_id": 5, "type": "translate", "question": "Traduce: Quiero graduarme.", "correct_answer": "i want to graduate", "hint": "Infinitivo"},
+{"id": 125, "section_id": 5, "type": "translate", "question": "Traduce: Necesito ser abogado.", "correct_answer": "i need to be a lawyer", "hint": "Ser"},
+{"id": 126, "section_id": 5, "type": "fill", "question": "I want ____ pass today.", "correct_answer": "to", "hint": "Puente"},
+{"id": 127, "section_id": 5, "type": "fill", "question": "I need to ____ ready today.", "correct_answer": "be", "hint": "Estar"},
+{"id": 128, "section_id": 5, "type": "fill", "question": "She has ____ work today.", "correct_answer": "to", "hint": "Tener que"},
+{"id": 129, "section_id": 5, "type": "translate", "question": "Traduce: Quiero graduarme hoy.", "correct_answer": "i want to graduate today", "hint": "Infinitivo"},
+{"id": 130, "section_id": 5, "type": "translate", "question": "Traduce: Necesito ser abogado hoy.", "correct_answer": "i need to be a lawyer today", "hint": "Ser"},
+{"id": 131, "section_id": 5, "type": "fill", "question": "I need ____ pass the test.", "correct_answer": "to", "hint": "Puente"},
+{"id": 132, "section_id": 5, "type": "translate", "question": "Traduce: Yo quiero ser abogado.", "correct_answer": "i want to be a lawyer", "hint": "Want to be"},
+{"id": 133, "section_id": 5, "type": "fill", "question": "Daniela has ____ reconcile accounts.", "correct_answer": "to", "hint": "Have to"},
+{"id": 134, "section_id": 5, "type": "fill", "question": "I want to ____ a high-performance player.", "correct_answer": "be", "hint": "Ser"},
+{"id": 135, "section_id": 5, "type": "translate", "question": "Traduce: Tenemos que estudiar los códigos.", "correct_answer": "we have to study the codes", "hint": "Have to study"},
+{"id": 136, "section_id": 5, "type": "fill", "question": "The liquidator needs ____ verify balances.", "correct_answer": "to", "hint": "Puente"},
+{"id": 137, "section_id": 5, "type": "translate", "question": "Traduce: Ella quiere estar en la oficina.", "correct_answer": "she wants to be in the office", "hint": "Wants to be"},
+{"id": 138, "section_id": 5, "type": "fill", "question": "We hope ____ deploy the app.", "correct_answer": "to", "hint": "Puente"},
+{"id": 139, "section_id": 5, "type": "translate", "question": "Traduce: Necesito estar listo.", "correct_answer": "i need to be ready", "hint": "Need to be"},
+{"id": 140, "section_id": 5, "type": "fill", "question": "You have ____ check the sequences.", "correct_answer": "to", "hint": "Puente"},
+{"id": 141, "section_id": 5, "type": "fill", "question": "I intend to ____ an expert.", "correct_answer": "be", "hint": "Ser"},
+{"id": 142, "section_id": 5, "type": "translate", "question": "Traduce: Daniela necesita finalizar el reporte.", "correct_answer": "daniela needs to finish the report", "hint": "Needs to finish"},
+{"id": 143, "section_id": 5, "type": "fill", "question": "The team wants ____ win the championship.", "correct_answer": "to", "hint": "Puente"},
+{"id": 144, "section_id": 5, "type": "translate", "question": "Traduce: El documento tiene que ser perfecto.", "correct_answer": "the document has to be perfect", "hint": "Has to be"},
+{"id": 145, "section_id": 5, "type": "fill", "question": "I need to ____ focused.", "correct_answer": "be", "hint": "Estar"},
+{"id": 146, "section_id": 5, "type": "translate", "question": "Traduce: Yo necesito trabajar.", "correct_answer": "i need to work", "hint": "Need to"},
+{"id": 147, "section_id": 5, "type": "fill", "question": "She wants ____ travel.", "correct_answer": "to", "hint": "Puente"},
+{"id": 148, "section_id": 5, "type": "translate", "question": "Traduce: Ellos tienen que ganar.", "correct_answer": "they have to win", "hint": "Have to"},
+{"id": 149, "section_id": 5, "type": "fill", "question": "I have to ____ fast.", "correct_answer": "be", "hint": "Ser/Estar"},
+{"id": 150, "section_id": 5, "type": "translate", "question": "Traduce: Queremos estudiar.", "correct_answer": "we want to study", "hint": "Want to"},
+{"id": 151, "section_id": 6, "type": "fill", "question": "I study ____ I work.", "correct_answer": "and", "hint": "Suma"},
+{"id": 152, "section_id": 6, "type": "fill", "question": "I want to play ____ I am busy.", "correct_answer": "but", "hint": "Contraste"},
+{"id": 153, "section_id": 6, "type": "fill", "question": "She is an accountant ____ she manages funds.", "correct_answer": "and", "hint": "Suma"},
+{"id": 154, "section_id": 6, "type": "translate", "question": "Traduce: Juego básquet, pero estoy cansado.", "correct_answer": "i play basketball but i am tired", "hint": "Contraste"},
+{"id": 155, "section_id": 6, "type": "translate", "question": "Traduce: Vivo en Otavalo y trabajo en Quito.", "correct_answer": "i live in otavalo and i work in quito", "hint": "Suma"},
+{"id": 156, "section_id": 6, "type": "fill", "question": "I study ____ I work today.", "correct_answer": "and", "hint": "Suma"},
+{"id": 157, "section_id": 6, "type": "fill", "question": "I want to play ____ I am busy today.", "correct_answer": "but", "hint": "Contraste"},
+{"id": 158, "section_id": 6, "type": "fill", "question": "She is an accountant ____ she manages funds today.", "correct_answer": "and", "hint": "Suma"},
+{"id": 159, "section_id": 6, "type": "translate", "question": "Traduce: Juego básquet, pero estoy cansado hoy.", "correct_answer": "i play basketball but i am tired today", "hint": "Contraste"},
+{"id": 160, "section_id": 6, "type": "translate", "question": "Traduce: Vivo en Otavalo y trabajo en Quito hoy.", "correct_answer": "i live in otavalo and i work in quito today", "hint": "Suma"},
+{"id": 161, "section_id": 6, "type": "fill", "question": "I study law ____ I play basketball.", "correct_answer": "and", "hint": "Suma"},
+{"id": 162, "section_id": 6, "type": "translate", "question": "Traduce: Quiero viajar, pero prefiero salvar la Tierra.", "correct_answer": "i want to travel but i prefer to save the earth", "hint": "Contraste"},
+{"id": 163, "section_id": 6, "type": "fill", "question": "The document is long ____ it is interesting.", "correct_answer": "and", "hint": "Suma"},
+{"id": 164, "section_id": 6, "type": "fill", "question": "I want the iPad, ____ I need to save money.", "correct_answer": "but", "hint": "Contraste"},
+{"id": 165, "section_id": 6, "type": "translate", "question": "Traduce: Daniela es contadora y administra la tienda.", "correct_answer": "daniela is an accountant and she manages the store", "hint": "Suma"},
+{"id": 166, "section_id": 6, "type": "fill", "question": "The routine is exhausting ____ it helps my jump.", "correct_answer": "but", "hint": "Contraste"},
+{"id": 167, "section_id": 6, "type": "translate", "question": "Traduce: Vivo en Otavalo, pero estudio en Quito.", "correct_answer": "i live in otavalo but i study in quito", "hint": "Contraste"},
+{"id": 168, "section_id": 6, "type": "fill", "question": "We use React ____ we use Firebase.", "correct_answer": "and", "hint": "Suma"},
+{"id": 169, "section_id": 6, "type": "translate", "question": "Traduce: El examen es difícil, pero estoy listo.", "correct_answer": "the exam is difficult but i am ready", "hint": "Contraste"},
+{"id": 170, "section_id": 6, "type": "fill", "question": "I drink coffee ____ I listen to rain.", "correct_answer": "and", "hint": "Suma"},
+{"id": 171, "section_id": 6, "type": "fill", "question": "She needs to work, ____ she prefers to rest.", "correct_answer": "but", "hint": "Contraste"},
+{"id": 172, "section_id": 6, "type": "translate", "question": "Traduce: Mi esposa y yo vivimos en Ecuador.", "correct_answer": "my wife and i live in ecuador", "hint": "Suma"},
+{"id": 173, "section_id": 6, "type": "fill", "question": "The portfolio has many accounts ____ they are organized.", "correct_answer": "and", "hint": "Suma"},
+{"id": 174, "section_id": 6, "type": "translate", "question": "Traduce: Me gusta el rock, pero necesito silencio.", "correct_answer": "i like rock but i need silence", "hint": "Contraste"},
+{"id": 175, "section_id": 6, "type": "fill", "question": "I use StackBlitz ____ Netlify.", "correct_answer": "and", "hint": "Suma"},
+{"id": 176, "section_id": 6, "type": "translate", "question": "Traduce: Leo libros y escribo notas.", "correct_answer": "i read books and i write notes", "hint": "Suma"},
+{"id": 177, "section_id": 6, "type": "fill", "question": "I like sports, ____ I do not like tennis.", "correct_answer": "but", "hint": "Contraste"},
+{"id": 178, "section_id": 6, "type": "translate", "question": "Traduce: Corro rápido, pero estoy cansado.", "correct_answer": "i run fast but i am tired", "hint": "Contraste"},
+{"id": 179, "section_id": 6, "type": "fill", "question": "I am tall ____ I am fast.", "correct_answer": "and", "hint": "Suma"},
+{"id": 180, "section_id": 6, "type": "translate", "question": "Traduce: Ella es inteligente y trabajadora.", "correct_answer": "she is smart and hardworking", "hint": "Suma"},
+{"id": 181, "section_id": 7, "type": "fill", "question": "I study ____ I want to pass.", "correct_answer": "because", "hint": "Razón"},
+{"id": 182, "section_id": 7, "type": "fill", "question": "I sleep ____ I am tired.", "correct_answer": "because", "hint": "Razón"},
+{"id": 183, "section_id": 7, "type": "translate", "question": "Traduce: Trabajo porque necesito dinero.", "correct_answer": "i work because i need money", "hint": "Razón"},
+{"id": 184, "section_id": 7, "type": "translate", "question": "Traduce: Juego porque es saludable.", "correct_answer": "i play because it is healthy", "hint": "Razón"},
+{"id": 185, "section_id": 7, "type": "fill", "question": "I study ____ I want to pass today.", "correct_answer": "because", "hint": "Razón"},
+{"id": 186, "section_id": 7, "type": "fill", "question": "I sleep ____ I am tired today.", "correct_answer": "because", "hint": "Razón"},
+{"id": 187, "section_id": 7, "type": "translate", "question": "Traduce: Trabajo porque necesito dinero hoy.", "correct_answer": "i work because i need money today", "hint": "Razón"},
+{"id": 188, "section_id": 7, "type": "translate", "question": "Traduce: Juego porque es saludable hoy.", "correct_answer": "i play because it is healthy today", "hint": "Razón"},
+{"id": 189, "section_id": 7, "type": "fill", "question": "I practice every day ____ I need to pass.", "correct_answer": "because", "hint": "Razón"},
+{"id": 190, "section_id": 7, "type": "translate", "question": "Traduce: Juego porque es bueno para mi salud.", "correct_answer": "i play because it is good for my health", "hint": "Porque"},
+{"id": 191, "section_id": 7, "type": "fill", "question": "Daniela works ____ the liquidation is urgent.", "correct_answer": "because", "hint": "Razón"},
+{"id": 192, "section_id": 7, "type": "fill", "question": "We created an app ____ the tracking was slow.", "correct_answer": "because", "hint": "Razón"},
+{"id": 193, "section_id": 7, "type": "translate", "question": "Traduce: Estudio porque quiero ser abogado.", "correct_answer": "i study because i want to be a lawyer", "hint": "Porque"},
+{"id": 194, "section_id": 7, "type": "fill", "question": "I buy protein ____ I train hard.", "correct_answer": "because", "hint": "Razón"},
+{"id": 195, "section_id": 7, "type": "translate", "question": "Traduce: Tomo café porque estoy cansado.", "correct_answer": "i drink coffee because i am tired", "hint": "Porque"},
+{"id": 196, "section_id": 7, "type": "fill", "question": "The judge accepted the action ____ the evidence was solid.", "correct_answer": "because", "hint": "Razón"},
+{"id": 197, "section_id": 7, "type": "translate", "question": "Traduce: Uso el iPad porque es rápido.", "correct_answer": "i use the ipad because it is fast", "hint": "Porque"},
+{"id": 198, "section_id": 7, "type": "fill", "question": "I listen to rain ____ they help me concentrate.", "correct_answer": "because", "hint": "Razón"},
+{"id": 199, "section_id": 7, "type": "fill", "question": "My future depends on this degree ____ it unlocks my license.", "correct_answer": "because", "hint": "Razón"},
+{"id": 200, "section_id": 7, "type": "translate", "question": "Traduce: Ella está feliz porque terminó el balance.", "correct_answer": "she is happy because she finished the balance", "hint": "Porque"},
+{"id": 201, "section_id": 7, "type": "fill", "question": "I study the code ____ I need to review regulations.", "correct_answer": "because", "hint": "Razón"},
+{"id": 202, "section_id": 7, "type": "translate", "question": "Traduce: Entrenamos duro porque queremos ganar.", "correct_answer": "we train hard because we want to win", "hint": "Porque"},
+{"id": 203, "section_id": 7, "type": "fill", "question": "I use GitHub ____ it keeps my projects safe.", "correct_answer": "because", "hint": "Razón"},
+{"id": 204, "section_id": 7, "type": "translate", "question": "Traduce: Yo descanso porque trabajo mucho.", "correct_answer": "i rest because i work a lot", "hint": "Razón"},
+{"id": 205, "section_id": 7, "type": "fill", "question": "He smiles ____ he is happy.", "correct_answer": "because", "hint": "Razón"},
+{"id": 206, "section_id": 7, "type": "translate", "question": "Traduce: Aprendemos rápido porque somos inteligentes.", "correct_answer": "we learn fast because we are smart", "hint": "Razón"},
+{"id": 207, "section_id": 7, "type": "fill", "question": "I need water ____ I am thirsty.", "correct_answer": "because", "hint": "Razón"},
+{"id": 208, "section_id": 7, "type": "translate", "question": "Traduce: Leo este libro porque es interesante.", "correct_answer": "i read this book because it is interesting", "hint": "Razón"},
+{"id": 209, "section_id": 7, "type": "fill", "question": "They win ____ they are the best.", "correct_answer": "because", "hint": "Razón"},
+{"id": 210, "section_id": 7, "type": "translate", "question": "Traduce: Estudio todos los días porque es necesario.", "correct_answer": "i study every day because it is necessary", "hint": "Razón"},
+{"id": 211, "section_id": 8, "type": "fill", "question": "I am ____ to study.", "correct_answer": "going", "hint": "Futuro"},
+{"id": 212, "section_id": 8, "type": "fill", "question": "She ____ going to work.", "correct_answer": "is", "hint": "To be futuro"},
+{"id": 213, "section_id": 8, "type": "fill", "question": "We are going ____ win.", "correct_answer": "to", "hint": "Puente futuro"},
+{"id": 214, "section_id": 8, "type": "translate", "question": "Traduce: Voy a tomar el examen.", "correct_answer": "i am going to take the exam", "hint": "Futuro"},
+{"id": 215, "section_id": 8, "type": "translate", "question": "Traduce: Ellos van a viajar.", "correct_answer": "they are going to travel", "hint": "Futuro plural"},
+{"id": 216, "section_id": 8, "type": "fill", "question": "I am ____ to study today.", "correct_answer": "going", "hint": "Futuro"},
+{"id": 217, "section_id": 8, "type": "fill", "question": "She ____ going to work today.", "correct_answer": "is", "hint": "To be futuro"},
+{"id": 218, "section_id": 8, "type": "fill", "question": "We are going ____ win today.", "correct_answer": "to", "hint": "Puente futuro"},
+{"id": 219, "section_id": 8, "type": "translate", "question": "Traduce: Voy a tomar el examen hoy.", "correct_answer": "i am going to take the exam today", "hint": "Futuro"},
+{"id": 220, "section_id": 8, "type": "translate", "question": "Traduce: Ellos van a viajar hoy.", "correct_answer": "they are going to travel today", "hint": "Futuro plural"},
+{"id": 221, "section_id": 8, "type": "fill", "question": "I ____ going to take the iTEP test.", "correct_answer": "am", "hint": "To be"},
+{"id": 222, "section_id": 8, "type": "translate", "question": "Traduce: Daniela va a revisar los créditos.", "correct_answer": "daniela is going to review the credits", "hint": "Is going to"},
+{"id": 223, "section_id": 8, "type": "fill", "question": "We ____ going to celebrate my graduation.", "correct_answer": "are", "hint": "To be"},
+{"id": 224, "section_id": 8, "type": "fill", "question": "The coach is ____ to change the strategy.", "correct_answer": "going", "hint": "Going"},
+{"id": 225, "section_id": 8, "type": "translate", "question": "Traduce: Yo voy a ser abogado.", "correct_answer": "i am going to be a lawyer", "hint": "Am going to be"},
+{"id": 226, "section_id": 8, "type": "fill", "question": "They ____ going to host the match.", "correct_answer": "are", "hint": "To be"},
+{"id": 227, "section_id": 8, "type": "translate", "question": "Traduce: Ella va a preparar los informes.", "correct_answer": "she is going to prepare the reports", "hint": "Is going to prepare"},
+{"id": 228, "section_id": 8, "type": "fill", "question": "I am going to ____ my vertical jump.", "correct_answer": "improve", "hint": "Verbo base"},
+{"id": 229, "section_id": 8, "type": "translate", "question": "Traduce: Vamos a desarrollar un sistema.", "correct_answer": "we are going to develop a system", "hint": "Are going to develop"},
+{"id": 230, "section_id": 8, "type": "fill", "question": "The judge ____ going to analyze the action.", "correct_answer": "is", "hint": "To be"},
+{"id": 231, "section_id": 8, "type": "fill", "question": "I am ____ to buy a power bank.", "correct_answer": "going", "hint": "Going"},
+{"id": 232, "section_id": 8, "type": "translate", "question": "Traduce: Voy a estudiar el Código esta noche.", "correct_answer": "i am going to study the code tonight", "hint": "Am going to study"},
+{"id": 233, "section_id": 8, "type": "fill", "question": "Daniela and I ____ going to dine out.", "correct_answer": "are", "hint": "To be"},
+{"id": 234, "section_id": 8, "type": "translate", "question": "Traduce: El equipo va a ganar.", "correct_answer": "the team is going to win", "hint": "Is going to win"},
+{"id": 235, "section_id": 8, "type": "fill", "question": "I ____ going to push my limits.", "correct_answer": "am", "hint": "To be"},
+{"id": 236, "section_id": 8, "type": "translate", "question": "Traduce: Vamos a trabajar duro.", "correct_answer": "we are going to work hard", "hint": "Futuro"},
+{"id": 237, "section_id": 8, "type": "fill", "question": "You ____ going to pass.", "correct_answer": "are", "hint": "To be plural"},
+{"id": 238, "section_id": 8, "type": "translate", "question": "Traduce: Yo voy a ayudar a mi esposa.", "correct_answer": "i am going to help my wife", "hint": "Futuro"},
+{"id": 239, "section_id": 8, "type": "fill", "question": "He is going ____ arrive late.", "correct_answer": "to", "hint": "Puente"},
+{"id": 240, "section_id": 8, "type": "translate", "question": "Traduce: Nosotros vamos a jugar básquet.", "correct_answer": "we are going to play basketball", "hint": "Futuro"},
+{"id": 241, "section_id": 9, "type": "fill", "question": "____ you study law?", "correct_answer": "do", "hint": "Auxiliar"},
+{"id": 242, "section_id": 9, "type": "fill", "question": "I ____ speak English.", "correct_answer": "can", "hint": "Modal"},
+{"id": 243, "section_id": 9, "type": "fill", "question": "You ____ study for the test.", "correct_answer": "must", "hint": "Obligación"},
+{"id": 244, "section_id": 9, "type": "translate", "question": "Traduce: ¿Ella juega básquet?", "correct_answer": "does she play basketball", "hint": "Auxiliar 3ra persona"},
+{"id": 245, "section_id": 9, "type": "translate", "question": "Traduce: Deberías descansar.", "correct_answer": "you should rest", "hint": "Consejo"},
+{"id": 246, "section_id": 9, "type": "fill", "question": "____ you study law today?", "correct_answer": "do", "hint": "Auxiliar"},
+{"id": 247, "section_id": 9, "type": "fill", "question": "I ____ speak English today.", "correct_answer": "can", "hint": "Modal"},
+{"id": 248, "section_id": 9, "type": "fill", "question": "You ____ study for the test today.", "correct_answer": "must", "hint": "Obligación"},
+{"id": 249, "section_id": 9, "type": "translate", "question": "Traduce: ¿Ella juega básquet hoy?", "correct_answer": "does she play basketball today", "hint": "Auxiliar 3ra persona"},
+{"id": 250, "section_id": 9, "type": "translate", "question": "Traduce: Deberías descansar hoy.", "correct_answer": "you should rest today", "hint": "Consejo"},
+{"id": 251, "section_id": 9, "type": "fill", "question": "____ you play basketball?", "correct_answer": "do", "hint": "Aux"},
+{"id": 252, "section_id": 9, "type": "translate", "question": "Traduce: ¿Ella revisa las carteras?", "correct_answer": "does she review the portfolios", "hint": "Does"},
+{"id": 253, "section_id": 9, "type": "fill", "question": "____ you ready to defend your arguments?", "correct_answer": "are", "hint": "Verbo to be"},
+{"id": 254, "section_id": 9, "type": "fill", "question": "I ____ speak Spanish and learn English.", "correct_answer": "can", "hint": "Modal"},
+{"id": 255, "section_id": 9, "type": "translate", "question": "Traduce: Tú deberías estudiar el código civil.", "correct_answer": "you should study the civil code", "hint": "Should"},
+{"id": 256, "section_id": 9, "type": "fill", "question": "You ____ pass the exam.", "correct_answer": "must", "hint": "Modal"},
+{"id": 257, "section_id": 9, "type": "translate", "question": "Traduce: ¿Es difícil el examen?", "correct_answer": "is the exam difficult", "hint": "Is"},
+{"id": 258, "section_id": 9, "type": "fill", "question": "David ____ execute complex exercises.", "correct_answer": "can", "hint": "Modal"},
+{"id": 259, "section_id": 9, "type": "translate", "question": "Traduce: Debemos proteger los documentos.", "correct_answer": "we must protect the documents", "hint": "Must"},
+{"id": 260, "section_id": 9, "type": "fill", "question": "____ Daniela work as an accountant?", "correct_answer": "does", "hint": "Aux"},
+{"id": 261, "section_id": 9, "type": "fill", "question": "You ____ not use unverified code.", "correct_answer": "should", "hint": "Modal"},
+{"id": 262, "section_id": 9, "type": "translate", "question": "Traduce: ¿Puedes ayudarme con este balance?", "correct_answer": "can you help me with this balance", "hint": "Can"},
+{"id": 263, "section_id": 9, "type": "fill", "question": "____ the portfolio liquidated?", "correct_answer": "is", "hint": "Verbo to be"},
+{"id": 264, "section_id": 9, "type": "translate", "question": "Traduce: Debes revisar la secuencia.", "correct_answer": "you must check the sequence", "hint": "Must"},
+{"id": 265, "section_id": 9, "type": "fill", "question": "Lawyers ____ maintain ethical standards.", "correct_answer": "must", "hint": "Modal"},
+{"id": 266, "section_id": 9, "type": "translate", "question": "Traduce: ¿Entiendes la regla?", "correct_answer": "do you understand the rule", "hint": "Auxiliar"},
+{"id": 267, "section_id": 9, "type": "fill", "question": "He ____ run very fast.", "correct_answer": "can", "hint": "Modal"},
+{"id": 268, "section_id": 9, "type": "translate", "question": "Traduce: ¿Dónde vives?", "correct_answer": "where do you live", "hint": "Wh + Aux"},
+{"id": 269, "section_id": 9, "type": "fill", "question": "We ____ arrive on time.", "correct_answer": "must", "hint": "Obligación"},
+{"id": 270, "section_id": 9, "type": "translate", "question": "Traduce: ¿Eres abogado?", "correct_answer": "are you a lawyer", "hint": "To be"},
+{"id": 271, "section_id": 10, "type": "fill", "question": "I ____ basketball yesterday.", "correct_answer": "played", "hint": "Pasado regular"},
+{"id": 272, "section_id": 10, "type": "fill", "question": "She ____ to Quito last week.", "correct_answer": "went", "hint": "Pasado irregular"},
+{"id": 273, "section_id": 10, "type": "fill", "question": "The exam ____ difficult.", "correct_answer": "was", "hint": "Pasado to be"},
+{"id": 274, "section_id": 10, "type": "translate", "question": "Traduce: Tomé café.", "correct_answer": "i drank coffee", "hint": "Pasado irregular"},
+{"id": 275, "section_id": 10, "type": "translate", "question": "Traduce: Estudié mucho.", "correct_answer": "i studied a lot", "hint": "Pasado regular"},
+{"id": 276, "section_id": 10, "type": "fill", "question": "I ____ basketball yesterday today.", "correct_answer": "played", "hint": "Pasado regular"},
+{"id": 277, "section_id": 10, "type": "fill", "question": "She ____ to Quito last week today.", "correct_answer": "went", "hint": "Pasado irregular"},
+{"id": 278, "section_id": 10, "type": "fill", "question": "The exam ____ difficult today.", "correct_answer": "was", "hint": "Pasado to be"},
+{"id": 279, "section_id": 10, "type": "translate", "question": "Traduce: Tomé café hoy.", "correct_answer": "i drank coffee today", "hint": "Pasado irregular"},
+{"id": 280, "section_id": 10, "type": "translate", "question": "Traduce: Estudié mucho hoy.", "correct_answer": "i studied a lot today", "hint": "Pasado regular"},
+{"id": 281, "section_id": 10, "type": "fill", "question": "Yesterday, David ____ basketball.", "correct_answer": "played", "hint": "Pasado"},
+{"id": 282, "section_id": 10, "type": "translate", "question": "Traduce: Yo estudié derecho anoche.", "correct_answer": "i studied law last night", "hint": "Studied"},
+{"id": 283, "section_id": 10, "type": "fill", "question": "Last week, I ____ to Quito.", "correct_answer": "went", "hint": "Pasado"},
+{"id": 284, "section_id": 10, "type": "fill", "question": "The case ____ very complex.", "correct_answer": "was", "hint": "Pasado to be"},
+{"id": 285, "section_id": 10, "type": "translate", "question": "Traduce: Daniela tuvo mucho trabajo.", "correct_answer": "daniela had a lot of work", "hint": "Had"},
+{"id": 286, "section_id": 10, "type": "fill", "question": "We ____ a great session on Friday.", "correct_answer": "had", "hint": "Pasado"},
+{"id": 287, "section_id": 10, "type": "translate", "question": "Traduce: Ayer yo tomé un café.", "correct_answer": "yesterday i drank a coffee", "hint": "Drank"},
+{"id": 288, "section_id": 10, "type": "fill", "question": "____ you finish the setup yesterday?", "correct_answer": "did", "hint": "Aux pasado"},
+{"id": 289, "section_id": 10, "type": "fill", "question": "I ____ not find any errors.", "correct_answer": "did", "hint": "Aux negativo"},
+{"id": 290, "section_id": 10, "type": "translate", "question": "Traduce: Nosotros estuvimos muy ocupados.", "correct_answer": "we were very busy", "hint": "Were"},
+{"id": 291, "section_id": 10, "type": "fill", "question": "My wife ____ the files last night.", "correct_answer": "checked", "hint": "Pasado"},
+{"id": 292, "section_id": 10, "type": "translate", "question": "Traduce: El juez rechazó la acción.", "correct_answer": "the judge rejected the action", "hint": "Rejected"},
+{"id": 293, "section_id": 10, "type": "fill", "question": "I ____ a shower before the webinar.", "correct_answer": "took", "hint": "Pasado"},
+{"id": 294, "section_id": 10, "type": "translate", "question": "Traduce: El examen fue fácil.", "correct_answer": "the exam was easy", "hint": "Was"},
+{"id": 295, "section_id": 10, "type": "fill", "question": "We ____ hard to optimize the database.", "correct_answer": "worked", "hint": "Pasado"},
+{"id": 296, "section_id": 10, "type": "translate", "question": "Traduce: Yo gané el partido.", "correct_answer": "i won the game", "hint": "Irregular"},
+{"id": 297, "section_id": 10, "type": "fill", "question": "She ____ the report yesterday.", "correct_answer": "wrote", "hint": "Irregular"},
+{"id": 298, "section_id": 10, "type": "translate", "question": "Traduce: Ellos trabajaron duro.", "correct_answer": "they worked hard", "hint": "Regular"},
+{"id": 299, "section_id": 10, "type": "fill", "question": "I ____ my keys.", "correct_answer": "lost", "hint": "Irregular"},
+{"id": 300, "section_id": 10, "type": "translate", "question": "Traduce: Comí mucho.", "correct_answer": "i ate a lot", "hint": "Irregular"}
+];
+
+        // ==========================================
+        // 📦 2. LA CAJA GIGANTE DEL SIMULADOR ITEP
+        // ==========================================
+        const simulator_pool = [
+            // Pega aquí las preguntas de opción múltiple
+        ];
+
+        // ==========================================
+        // 🏗️ ESTRUCTURA DE LAS SECCIONES
+        // ==========================================
+        const database = {
+          "unit_1": {
+            "unit_title": "Unidad 1: Entrenamiento Base a B1",
+            "sections": [
+              {
+                "section_id": 1, "section_title": "Los Actores y el 'It'",
+                "lesson": "<strong>Regla:</strong> ¿Quién hace la acción? (I, You, He, She, We, They). Si hablas de una cosa/clima, DEBES poner <strong>It</strong>.",
+                "match_pairs": [{en: "I", es: "Yo"}, {en: "She", es: "Ella"}, {en: "We", es: "Nosotros"}, {en: "It", es: "Eso (cosa/clima)"}, {en: "They", es: "Ellos"}]
+              },
+              {
+                "section_id": 2, "section_title": "El Verbo To Be (Ser/Estar)",
+                "lesson": "<strong>Regla:</strong> 'I' va con <strong>am</strong>. 'He/She/It' va con <strong>is</strong>. 'You/We/They' va con <strong>are</strong>. Las profesiones llevan <strong>a / an</strong>.",
+                "match_pairs": [{en: "I am", es: "Yo soy/estoy"}, {en: "She is", es: "Ella es/está"}, {en: "We are", es: "Nosotros somos/estamos"}, {en: "It is", es: "Eso es/está"}]
+              },
+              {
+                "section_id": 3, "section_title": "Mis Acciones en Presente",
+                "lesson": "<strong>Regla:</strong> Junta el actor y la acción. Ojo: Escuchar algo siempre lleva 'to' (listen <strong>to</strong> music).",
+                "match_pairs": [{en: "I play", es: "Yo juego"}, {en: "We study", es: "Nosotros estudiamos"}, {en: "They work", es: "Ellos trabajan"}, {en: "I listen to", es: "Yo escucho (algo)"}]
+              },
+              {
+                "section_id": 4, "section_title": "Trampas de Tiempo (In, On, At)",
+                "lesson": "<strong>Regla:</strong> IN (Ciudades, Meses, Mañana/Tarde). ON (Días). AT (Horas, Lugares exactos, *night*).",
+                "match_pairs": [{en: "In the morning", es: "En la mañana"}, {en: "On Friday", es: "El viernes"}, {en: "At night", es: "En la noche"}, {en: "In Otavalo", es: "En Otavalo"}]
+              },
+              {
+                "section_id": 5, "section_title": "El Puente 'To'",
+                "lesson": "<strong>Regla de oro:</strong> Dos verbos de acción NO van pegados. Sepáralos con <strong>to</strong>. Ej: I need <strong>to</strong> pass. Ser como acción se dice <strong>be</strong>.",
+                "match_pairs": [{en: "I want to go", es: "Quiero ir"}, {en: "I need to pass", es: "Necesito pasar"}, {en: "I have to work", es: "Tengo que trabajar"}, {en: "Want to be", es: "Quiero ser"}]
+              },
+              {
+                "section_id": 6, "section_title": "Conectores: AND, BUT",
+                "lesson": "<strong>Regla:</strong> AND (sumar rutinas). BUT (poner un problema u obstáculo).",
+                "match_pairs": [{en: "And", es: "Y (sumar)"}, {en: "But", es: "Pero (contraste)"}, {en: "Because", es: "Porque (razón)"}, {en: "Therefore", es: "Por lo tanto"}]
+              },
+              {
+                "section_id": 7, "section_title": "Conector BECAUSE",
+                "lesson": "<strong>Regla:</strong> Úsalo siempre para dar la razón a la pregunta ¿Por qué?",
+                "match_pairs": [{en: "Because", es: "Porque"}, {en: "Therefore", es: "Por lo tanto"}, {en: "However", es: "Sin embargo"}, {en: "So", es: "Así que"}]
+              },
+              {
+                "section_id": 8, "section_title": "Planes Seguros (Going to)",
+                "lesson": "<strong>Regla:</strong> Para hablar de tu futuro usa 'I am going to' + la acción. Si te comes el verbo to be, estará mal.",
+                "match_pairs": [{en: "I am going to", es: "Yo voy a"}, {en: "She is going to", es: "Ella va a"}, {en: "We are going to", es: "Nosotros vamos a"}, {en: "Take the exam", es: "Tomar el examen"}]
+              },
+              {
+                "section_id": 9, "section_title": "Hacer Preguntas y Modales",
+                "lesson": "<strong>Regla:</strong> Para preguntar usa Do/Does o mueve el Verbo To Be al inicio (Are you?). Los Modales (Can, Should, Must) NO usan 'to'.",
+                "match_pairs": [{en: "Do you play?", es: "¿Juegas?"}, {en: "Are you ready?", es: "¿Estás listo?"}, {en: "I can", es: "Yo puedo"}, {en: "I must", es: "Yo debo"}]
+              },
+              {
+                "section_id": 10, "section_title": "Mi Pasado Básico (-ed y Was/Went)",
+                "lesson": "<strong>Regla:</strong> El pasado de am/is es <strong>was</strong>. El pasado de are es <strong>were</strong>. Verbos regulares llevan <strong>-ed</strong>. GO es <strong>WENT</strong>.",
+                "match_pairs": [{en: "I played", es: "Yo jugué"}, {en: "I studied", es: "Yo estudié"}, {en: "I was", es: "Yo fui/estuve"}, {en: "I went", es: "Yo fui (de ir)"}]
+              },
+              {
+                "section_id": 11, "section_title": "EL GRAN RETO FINAL",
+                "lesson": "<strong>¡Todo junto!</strong> 🏆 Has superado las 10 bases. Ahora conectamos los vagones del tren para hacer oraciones largas.",
+                "match_pairs": [{en: "Because", es: "Porque"}, {en: "Therefore", es: "Por lo tanto"}, {en: "I am going to pass", es: "Yo voy a pasar"}, {en: "I want to graduate", es: "Quiero graduarme"}]
+              }
+            ]
+          }
+        };
+
+        // ==========================================
+        // LÓGICA DE LA APLICACIÓN
+        // ==========================================
+
+        function MatchGame({ pairs, onComplete }) {
+            const [cards, setCards] = useState([]);
+            const [selectedEn, setSelectedEn] = useState(null);
+            const [selectedEs, setSelectedEs] = useState(null);
+            const [matchedIds, setMatchedIds] = useState([]);
+            const [errorAnim, setErrorAnim] = useState(false);
+
+            useEffect(() => {
+                let initialCards = [];
+                pairs.forEach((p, idx) => {
+                    initialCards.push({ id: `en-${idx}`, pairId: idx, text: p.en, lang: 'en' });
+                    initialCards.push({ id: `es-${idx}`, pairId: idx, text: p.es, lang: 'es' });
+                });
+                setCards(initialCards.sort(() => Math.random() - 0.5));
+            }, [pairs]);
+
+            const handleClick = (card) => {
+                if (matchedIds.includes(card.pairId)) return;
+                if (card.lang === 'en') { setSelectedEn(selectedEn === card.id ? null : card.id); } 
+                else { setSelectedEs(selectedEs === card.id ? null : card.id); }
+            };
+
+            useEffect(() => {
+                if (selectedEn && selectedEs) {
+                    const enCard = cards.find(c => c.id === selectedEn);
+                    const esCard = cards.find(c => c.id === selectedEs);
+                    
+                    if (enCard.pairId === esCard.pairId) {
+                        setMatchedIds([...matchedIds, enCard.pairId]);
+                        setSelectedEn(null); setSelectedEs(null);
+                        speakEnglish(enCard.text); 
+                        if (matchedIds.length + 1 === pairs.length) setTimeout(() => onComplete(), 800);
+                    } else {
+                        setErrorAnim(true);
+                        setTimeout(() => { setSelectedEn(null); setSelectedEs(null); setErrorAnim(false); }, 600);
+                    }
+                }
+            }, [selectedEn, selectedEs]);
+
+            return (
+                <div className="bg-slate-800 p-6 rounded-2xl my-6 shadow-md">
+                    <h3 className="text-white font-bold text-xl mb-4 text-center">🎮 Reto Mental: Une las Parejas</h3>
+                    <div className="grid grid-cols-2 gap-3">
+                        {cards.map(card => {
+                            const isSelected = selectedEn === card.id || selectedEs === card.id;
+                            const isMatched = matchedIds.includes(card.pairId);
+                            const isError = errorAnim && isSelected;
+                            let baseClasses = "py-3 px-2 rounded-xl font-bold text-center transition-all cursor-pointer shadow-sm text-sm sm:text-base ";
+                            if (isMatched) baseClasses += "bg-green-500 text-white opacity-50 cursor-default";
+                            else if (isError) baseClasses += "bg-red-500 text-white animate-pulse";
+                            else if (isSelected) baseClasses += "bg-blue-400 text-white ring-4 ring-blue-200";
+                            else baseClasses += card.lang === 'en' ? "bg-slate-100 text-slate-800 hover:bg-slate-200" : "bg-indigo-100 text-indigo-900 hover:bg-indigo-200";
+                            return <div key={card.id} onClick={() => handleClick(card)} className={baseClasses}>{card.text}</div>
+                        })}
+                    </div>
+                </div>
+            );
+        }
+
+        function ItepSimulator({ pool, onFinish, onExit }) {
+            const [questions, setQuestions] = useState([]);
+            const [currentIndex, setCurrentIndex] = useState(0);
+            const [timeLeft, setTimeLeft] = useState(15 * 60); 
+            const [selectedOption, setSelectedOption] = useState(null);
+            const [showFeedback, setShowFeedback] = useState(false);
+            const [score, setScore] = useState(0);
+            const [isExamOver, setIsExamOver] = useState(false);
+
+            useEffect(() => {
+                const shuffled = [...pool].sort(() => 0.5 - Math.random()).slice(0, 25);
+                setQuestions(shuffled);
+            }, [pool]);
+
+            useEffect(() => {
+                if (isExamOver || questions.length === 0) return;
+                if (timeLeft <= 0) { setIsExamOver(true); return; }
+                const timerId = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
+                return () => clearInterval(timerId);
+            }, [timeLeft, isExamOver, questions]);
+
+            const formatTime = (seconds) => {
+                const m = Math.floor(seconds / 60); const s = seconds % 60;
+                return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            };
+
+            const handleOptionClick = (option) => {
+                if (showFeedback || isExamOver) return; 
+                setSelectedOption(option); setShowFeedback(true);
+                const currentQ = questions[currentIndex];
+                if (option === currentQ.correct_answer) { setScore(prev => prev + 1); } 
+                else { speakEnglish(currentQ.correct_answer); }
+            };
+
+            const handleNext = () => {
+                if (currentIndex + 1 < questions.length) {
+                    setCurrentIndex(prev => prev + 1); setSelectedOption(null); setShowFeedback(false);
+                } else { setIsExamOver(true); }
+            };
+
+            if (questions.length === 0) return <div className="p-8 text-center text-xl font-bold mt-20">Pega tus preguntas de simulador en simulator_pool</div>;
+
+            if (isExamOver) {
+                return (
+                    <div className="min-h-screen bg-slate-800 p-6 flex flex-col justify-center items-center text-center">
+                        <div className="bg-white p-10 rounded-3xl shadow-2xl max-w-lg w-full">
+                            <h2 className="text-4xl font-black text-slate-800 mb-4">Examen Finalizado</h2>
+                            <p className="text-xl text-slate-600 mb-6">Tiempo restante: {formatTime(timeLeft)}</p>
+                            <div className="text-6xl font-black text-blue-600 mb-8">{score} / {questions.length}</div>
+                            <button onClick={onFinish} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-2xl text-xl uppercase mb-4 transition-all">Volver a Intentar</button>
+                            <button onClick={onExit} className="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-4 rounded-2xl text-lg uppercase transition-all">Salir al Menú</button>
+                        </div>
+                    </div>
+                );
+            }
+
+            const currentQ = questions[currentIndex];
+
+            return (
+                <div className="min-h-screen bg-slate-100 flex flex-col">
+                    <div className="bg-slate-800 text-white p-4 sticky top-0 shadow-md flex justify-between items-center z-10">
+                        <div className="font-bold text-lg text-slate-300">Pregunta {currentIndex + 1} de {questions.length}</div>
+                        <div className={`text-2xl font-black flex items-center gap-2 ${timeLeft < 180 ? 'text-red-400 animate-pulse' : 'text-green-400'}`}>⏱️ {formatTime(timeLeft)}</div>
+                        <button onClick={onExit} className="text-sm bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded">Salir</button>
+                    </div>
+
+                    <div className="flex-1 max-w-3xl w-full mx-auto p-4 sm:p-8 flex flex-col justify-center">
+                        <div className="bg-white p-8 rounded-3xl shadow-lg border-2 border-slate-200">
+                            <button onClick={() => speakEnglish(currentQ.question)} className="mb-4 bg-blue-100 text-blue-700 px-4 py-2 rounded-full font-bold text-sm flex items-center gap-2">🔊 Escuchar Pregunta</button>
+                            <h3 className="text-3xl font-medium text-slate-800 mb-2 leading-relaxed">{currentQ.question}</h3>
+                            <p className="text-slate-400 font-mono text-lg mb-8 italic">{currentQ.pronunciation}</p>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {currentQ.options.map((opt, idx) => {
+                                    let btnClass = "bg-slate-50 border-slate-300 text-slate-700 hover:bg-blue-50 hover:border-blue-300";
+                                    if (showFeedback) {
+                                        if (opt === currentQ.correct_answer) btnClass = "bg-green-500 border-green-600 text-white shadow-md"; 
+                                        else if (opt === selectedOption) btnClass = "bg-red-500 border-red-600 text-white shadow-md"; 
+                                        else btnClass = "bg-slate-100 border-slate-200 text-slate-400 opacity-50"; 
+                                    }
+                                    const labels = ['A', 'B', 'C', 'D'];
+                                    return (
+                                        <button key={opt} onClick={() => handleOptionClick(opt)} disabled={showFeedback} className={`p-5 border-2 rounded-2xl text-xl font-bold text-left flex items-center gap-4 transition-all ${btnClass}`}>
+                                            <span className="bg-white/30 px-3 py-1 rounded-lg text-sm">{labels[idx]}</span>{opt}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            {showFeedback && (
+                                <div className={`mt-8 p-6 rounded-2xl border-l-8 ${selectedOption === currentQ.correct_answer ? 'bg-green-50 border-green-500' : 'bg-red-50 border-red-500'}`}>
+                                    <h4 className={`text-xl font-black mb-2 ${selectedOption === currentQ.correct_answer ? 'text-green-700' : 'text-red-700'}`}>
+                                        {selectedOption === currentQ.correct_answer ? '¡Correcto!' : 'Respuesta Incorrecta'}
+                                    </h4>
+                                    <p className="text-slate-700 text-lg">💡 {currentQ.exp}</p>
+                                </div>
+                            )}
+                        </div>
+
+                        {showFeedback && (
+                            <button onClick={handleNext} className="mt-8 w-full bg-slate-800 hover:bg-slate-900 text-white font-black py-6 rounded-2xl shadow-xl transition-all text-2xl uppercase tracking-wider">
+                                Siguiente Pregunta ➔
+                            </button>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        function UnitOneNotebook({ sectionsData, onExit }) {
+          const [sections, setSections] = useState(sectionsData);
+          const [unlockedSections, setUnlockedSections] = useState([1]);
+          const [view, setView] = useState('list'); 
+          const [currentSection, setCurrentSection] = useState(null);
+          const [answers, setAnswers] = useState({});
+          const [results, setResults] = useState(null); 
+          const [hintsVisible, setHintsVisible] = useState({}); 
+          const [matchCompleted, setMatchCompleted] = useState(false);
+
+          const evaluateSmart = (userText, exercise) => {
+              const rawUser = (userText || "").toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "");
+              const cleanUser = rawUser.replace(/\s+/g, ' ').trim(); 
+              const cleanCorrect = exercise.correct_answer.toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "").replace(/\s+/g, " ").trim();
+              
+              if (cleanUser === cleanCorrect) return { status: 'correct', msg: '¡Perfecto!' };
+
+              let specificFeedback = "";
+              if (cleanCorrect.includes("going to") && cleanUser.includes("going to")) {
+                  if (!cleanUser.includes("am") && !cleanUser.includes("is") && !cleanUser.includes("are")) specificFeedback = "⚠️ Olvidaste el verbo To Be (am/is/are) antes del 'going to'.";
+              }
+              if ((cleanCorrect.includes("want to") || cleanCorrect.includes("need to") || cleanCorrect.includes("have to")) && !cleanUser.includes("to")) {
+                   specificFeedback = "⚠️ Te comiste el puente 'to' que separa los dos verbos.";
+              }
+              if (cleanUser.length > 0 && Math.abs(cleanUser.length - cleanCorrect.length) <= 2) {
+                   specificFeedback = "⚠️ Fíjate bien en la ortografía (dedazo).";
+              }
+
+              const userWords = cleanUser.split(" "); const correctWords = cleanCorrect.split(" ");
+              const ignorables = ['a', 'an', 'the'];
+              const coreCorrect = correctWords.filter(w => !ignorables.includes(w)).join(" ");
+              const coreUser = userWords.filter(w => !ignorables.includes(w)).join(" ");
+
+              if (coreCorrect === coreUser && coreCorrect.length > 0) return { status: 'warning', msg: `¡Estructura correcta! Faltó 'a' o 'the'.`, expected: exercise.correct_answer };
+              if (cleanCorrect.includes('therefore') && cleanUser.includes('so')) {
+                  const checkSo = cleanCorrect.replace('therefore', 'so');
+                  if (checkSo === cleanUser) return { status: 'correct', msg: '¡Bien! Usaste SO en lugar de THEREFORE y vale igual.' };
+              }
+
+              return { status: 'incorrect', msg: specificFeedback || "Respuesta incorrecta.", expected: exercise.correct_answer };
+          };
+
+          useEffect(() => {
+            const savedUnlocked = JSON.parse(localStorage.getItem('unlockedSectionsV12'));
+            if (savedUnlocked) setUnlockedSections(savedUnlocked);
+          }, []);
+
+          useEffect(() => { localStorage.setItem('unlockedSectionsV12', JSON.stringify(unlockedSections)); }, [unlockedSections]);
+
+          const loadSection = (sec) => {
+            const myPool = global_exercises_pool.filter(ex => ex.section_id === sec.section_id);
+            const shuffledExercises = [...myPool].sort(() => 0.5 - Math.random());
+            const selectedExercises = shuffledExercises.slice(0, 10);
+
+            const activeSection = { ...sec, active_exercises: selectedExercises };
+            setCurrentSection(activeSection);
+
+            let initAnswers = {};
+            [...selectedExercises].forEach(ex => initAnswers[ex.id] = "");
+            setAnswers(initAnswers); 
+            setResults(null); 
+            setHintsVisible({}); 
+            setMatchCompleted(false); 
+            setView('practice'); 
+            window.scrollTo(0,0);
+          };
+
+          const handleInputChange = (exId, value) => setAnswers({...answers, [exId]: value});
+          const toggleHint = (exId) => setHintsVisible({...hintsVisible, [exId]: !hintsVisible[exId]});
+
+          const evaluateSection = () => {
+             if (!matchCompleted) { alert("¡Primero completa el Reto de Tarjetas (Match Game) antes de evaluar!"); return; }
+             let newResults = {}; let allPassed = true;
+             
+             const exercisesToEval = [...currentSection.active_exercises];
+
+             exercisesToEval.forEach(ex => {
+                const evalResult = evaluateSmart(answers[ex.id], ex);
+                newResults[ex.id] = evalResult;
+                if (evalResult.status === 'incorrect') allPassed = false;
+             });
+             
+             setResults(newResults); window.scrollTo(0,0);
+
+             if (allPassed) {
+                 const nextSectionId = currentSection.section_id + 1;
+                 if (!unlockedSections.includes(nextSectionId)) setUnlockedSections([...unlockedSections, nextSectionId]);
+             }
+          };
+
+          if (view === 'list') {
+            return (
+              <div className="min-h-screen bg-slate-100 p-6 max-w-4xl mx-auto">
+                <button onClick={onExit} className="mb-6 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2 px-6 rounded-xl">← Menú Principal</button>
+                <div className="bg-slate-800 text-white p-6 rounded-3xl shadow-lg mb-8 border-b-4 border-blue-500">
+                    <h2 className="text-2xl font-black uppercase tracking-wider mb-2">Cuaderno Dinámico ✏️</h2>
+                    <ul className="list-disc pl-5 space-y-1 text-slate-200">
+                        <li>El sistema elige <strong>10 preguntas al azar</strong> de tu banco global para cada sección.</li>
+                    </ul>
+                </div>
+                <div className="flex flex-col gap-4">
+                  {sections.map((sec) => {
+                    const isUnlocked = unlockedSections.includes(sec.section_id);
+                    const poolCount = global_exercises_pool.filter(ex => ex.section_id === sec.section_id).length;
+                    return (
+                      <div key={sec.section_id} className={`p-5 rounded-2xl border-2 flex flex-col sm:flex-row justify-between items-center gap-4 ${isUnlocked ? 'border-blue-200 bg-white shadow-md' : 'border-slate-200 bg-slate-100 opacity-60'}`}>
+                        <div className="text-center sm:text-left">
+                            <h2 className="text-xl font-bold text-slate-800">{sec.section_id}. {sec.section_title}</h2>
+                            <p className="text-slate-500 text-sm">Disponibles en el banco: {poolCount}</p>
+                        </div>
+                        <button disabled={!isUnlocked} onClick={() => loadSection(sec)} className={`w-full sm:w-auto py-3 px-8 rounded-xl font-bold text-white transition-all ${isUnlocked ? 'bg-blue-600 hover:bg-blue-700' : 'bg-slate-400'}`}>
+                          {isUnlocked ? 'Entrar' : 'Bloqueado'}
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            );
+          }
+
+          const exercisesToRender = [...currentSection.active_exercises];
+          const hasErrors = results && Object.values(results).some(r => r.status === 'incorrect');
+
+          if(exercisesToRender.length === 0) {
+              return <div className="p-8 text-center mt-20"><h2 className="text-2xl font-bold text-slate-700">No hay preguntas para la Sección {currentSection.section_id}</h2><p className="mt-2 text-slate-500">Asegúrate de pegar tus preguntas en <code>global_exercises_pool</code>.</p><button onClick={() => setView('list')} className="mt-6 bg-blue-600 text-white font-bold px-8 py-3 rounded-xl shadow-lg">Volver</button></div>
+          }
+
+          return (
+            <div className="min-h-screen bg-slate-100 pb-20">
+              <div className="sticky top-0 bg-white border-b-2 border-slate-200 p-4 z-20 shadow-sm">
+                <div className="max-w-4xl mx-auto flex justify-between items-center">
+                    <button onClick={() => setView('list')} className="text-blue-600 hover:text-blue-800 font-bold text-lg px-4 py-2 bg-blue-50 rounded-lg">← Lista de Secciones</button>
+                    <h2 className="font-bold text-slate-800 text-lg hidden sm:block">{currentSection.section_title}</h2>
+                </div>
+              </div>
+
+              <div className="max-w-4xl mx-auto p-4 space-y-6 mt-4">
+                <div className="bg-white p-6 rounded-3xl shadow-sm border-l-8 border-blue-500 mb-8">
+                    <h3 className="text-2xl font-black text-slate-800 mb-2">Lección</h3>
+                    <p className="text-slate-700 text-lg leading-relaxed" dangerouslySetInnerHTML={{__html: currentSection.lesson}}></p>
+                </div>
+
+                {exercisesToRender.map((ex, index) => {
+                    const isExam = currentSection.section_id === 11;
+                    const res = results ? results[ex.id] : null;
+                    
+                    let borderColor = 'border-slate-200'; let bgColor = 'bg-white';
+                    if (res) {
+                        if (res.status === 'correct') { borderColor = 'border-green-400'; bgColor = 'bg-green-50'; }
+                        if (res.status === 'warning') { borderColor = 'border-yellow-400'; bgColor = 'bg-yellow-50'; }
+                        if (res.status === 'incorrect') { borderColor = 'border-red-400'; bgColor = 'bg-white'; }
+                    } else if (isExam) { borderColor = 'border-orange-400'; bgColor = 'bg-orange-50'; }
+
+                    return (
+                        <div key={ex.id} className={`p-6 sm:p-8 rounded-3xl shadow-sm border-2 ${borderColor} ${bgColor} transition-all`}>
+                            <div className="flex justify-between items-start mb-4">
+                                <span className={`text-sm font-bold uppercase tracking-wider ${isExam ? 'text-orange-600' : 'text-slate-400'}`}>
+                                    {isExam ? '🚨 RETO FINAL' : `EJERCICIO ${index + 1}`}
+                                </span>
+                                <div className="flex gap-2">
+                                    <button onClick={() => toggleHint(ex.id)} className="bg-slate-200 hover:bg-slate-300 text-slate-700 p-2 rounded-full text-sm font-bold" title="Ver Pista">💡</button>
+                                    <button onClick={() => speakEnglish(ex.type === 'translate' ? ex.correct_answer : ex.question)} className="bg-blue-100 hover:bg-blue-200 text-blue-700 p-2 rounded-full text-sm font-bold" title="Escuchar Inglés">🔊</button>
+                                </div>
+                            </div>
+                            <h3 className="text-xl sm:text-2xl font-medium text-slate-800 mb-4">{ex.question}</h3>
+                            {hintsVisible[ex.id] && <div className="mb-4 bg-yellow-50 border border-yellow-200 p-3 rounded-xl text-yellow-800 text-sm"><strong>Pista:</strong> {ex.hint}</div>}
+                            
+                            {/* AQUI ESTÁN LOS ATRIBUTOS PARA EL APPLE PENCIL */}
+                            <input 
+                                type="text" 
+                                lang="en" 
+                                spellCheck="false" 
+                                autoCorrect="off" 
+                                autoCapitalize="off" 
+                                value={answers[ex.id] || ""} 
+                                onChange={(e) => handleInputChange(ex.id, e.target.value)} 
+                                disabled={results !== null && res.status !== 'incorrect'} 
+                                className={`w-full border-b-4 border-t-0 border-l-0 border-r-0 rounded-none p-3 text-xl sm:text-2xl outline-none transition-all font-medium bg-transparent ${res && res.status === 'incorrect' ? 'border-red-400 text-red-900 focus:border-red-600' : 'border-slate-300 text-slate-700 focus:border-blue-500'}`} 
+                                placeholder="Escribe en inglés aquí..." 
+                            />
+                            
+                            {res && res.status === 'incorrect' && (
+                                <div className="mt-6 p-4 bg-red-100 rounded-2xl border border-red-200">
+                                    <p className="text-red-800 font-bold text-lg">❌ {res.msg}</p>
+                                    <p className="text-slate-800 mt-2 text-lg">Respuesta exacta: <span className="text-green-700 font-bold">{res.expected}</span></p>
+                                    <button onClick={() => speakEnglish(res.expected)} className="mt-2 text-sm bg-green-200 text-green-800 px-3 py-1 rounded font-bold">🔊 Escuchar</button>
+                                </div>
+                            )}
+                            {res && res.status === 'warning' && (
+                                <div className="mt-6 p-4 bg-yellow-100 rounded-2xl border border-yellow-200"><p className="text-yellow-800 font-bold text-lg">⚠️ {res.msg}</p><p className="text-slate-600 mt-2">Era mejor decir: <em>{res.expected}</em></p></div>
+                            )}
+                            {res && res.status === 'correct' && <div className="mt-4"><p className="text-green-600 font-bold text-lg">✅ ¡Excelente!</p></div>}
+                        </div>
+                    );
+                })}
+
+                {!results && currentSection.match_pairs && <MatchGame pairs={currentSection.match_pairs} onComplete={() => setMatchCompleted(true)} />}
+
+                <div className="mt-8 mb-12">
+                    {results ? (
+                        hasErrors ? <button onClick={() => setResults(null)} className="w-full bg-slate-800 text-white font-black py-6 rounded-2xl shadow-xl text-xl uppercase">Corregir mis errores</button>
+                        : <button onClick={() => setView('list')} className="w-full bg-green-600 text-white font-black py-6 rounded-2xl shadow-xl text-xl uppercase">Siguiente Sección 🎉</button>
+                    ) : (
+                        <button onClick={evaluateSection} disabled={!matchCompleted} className={`w-full font-black py-6 rounded-2xl shadow-xl text-xl uppercase transition-all ${matchCompleted ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-slate-300 text-slate-500 cursor-not-allowed'}`}>
+                            {matchCompleted ? 'Evaluar Sección' : 'Completa el juego primero'}
+                        </button>
+                    )}
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        function App() {
+          const [view, setView] = useState('menu'); 
+          
+          if (view === 'menu') {
+              return (
+                  <div className="min-h-screen bg-slate-100 p-6 flex flex-col justify-center items-center">
+                      <div className="max-w-2xl w-full">
+                          <div className="text-center mb-12">
+                              <h1 className="text-5xl font-black text-slate-800 tracking-tight">LingoCode <span className="text-blue-600">HUB</span></h1>
+                              <p className="text-xl text-slate-500 mt-4 font-medium">Selecciona tu modo de entrenamiento, David.</p>
+                          </div>
+
+                          <div className="grid gap-6">
+                              <button onClick={() => setView('unit_1')} className="bg-white p-8 rounded-3xl shadow-lg border-2 border-slate-200 hover:border-blue-400 hover:shadow-xl transition-all text-left group">
+                                  <div className="flex items-center gap-6">
+                                      <div className="text-6xl group-hover:scale-110 transition-transform">📚</div>
+                                      <div>
+                                          <h2 className="text-3xl font-black text-slate-800">Cuaderno Aleatorio</h2>
+                                          <p className="text-slate-500 mt-2 text-lg">Unidad 1. Entra y el sistema elegirá 10 preguntas al azar de tu gran banco de datos.</p>
+                                      </div>
+                                  </div>
+                              </button>
+
+                              <button onClick={() => setView('simulator')} className="bg-slate-800 p-8 rounded-3xl shadow-lg border-2 border-slate-700 hover:border-red-400 hover:shadow-xl transition-all text-left group">
+                                  <div className="flex items-center gap-6">
+                                      <div className="text-6xl group-hover:scale-110 transition-transform">⏱️</div>
+                                      <div>
+                                          <h2 className="text-3xl font-black text-white">Simulador iTEP</h2>
+                                          <p className="text-slate-300 mt-2 text-lg">Opción múltiple, 15 minutos de reloj. Preparación directa para mañana.</p>
+                                      </div>
+                                  </div>
+                              </button>
+                          </div>
+                      </div>
+                  </div>
+              );
+          }
+
+          if (view === 'simulator') {
+              return <ItepSimulator key={Date.now()} pool={simulator_pool} onFinish={() => setView('simulator')} onExit={() => setView('menu')} />;
+          }
+
+          if (view === 'unit_1') {
+              return <UnitOneNotebook sectionsData={database.unit_1.sections} onExit={() => setView('menu')} />;
+          }
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
